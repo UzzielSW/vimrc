@@ -39,7 +39,6 @@ set ff=unix " Establece el formato del archivo a unix, lo que significa que las 
 
 set fillchars+=vert:\ 
 set number " Muestra los n?meros de l?nea en el lado izquierdo de la pantalla.
-set relativenumber " poner los numeros relativos a la posicion del cursor
 " set hlsearch " Resalta todas las coincidencias de la b?squeda actual.
 set nohlsearch " clear highlight after a search
 set showmatch " hace que vim muestre el par?ntesis, corchete o llave que coincide con el que est? bajo el cursor.
