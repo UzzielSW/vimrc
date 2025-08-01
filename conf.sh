@@ -1,185 +1,330 @@
-confVim() {
-  echo "Cargando Vim-Plug..."
-  curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+#!/bin/bash
 
-  echo
-  echo "Cargando configuracion de Vim"
-  cp ./.vimrc $HOME/.vimrc
+# Script de configuración de herramientas de desarrollo
+# Autor: Uzziel
+# Versión: 1.0
+
+# Colores para output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Función para imprimir mensajes con colores
+print_message() {
+    local color=$1
+    local message=$2
+    echo -e "${color}${message}${NC}"
+}
+
+# Función para validar si un archivo existe
+check_file_exists() {
+    local file=$1
+    if [ ! -f "$file" ]; then
+        print_message $RED "Error: No se encontró el archivo $file en el directorio actual."
+        return 1
+    fi
+    return 0
+}
+
+# Función para validar si curl está disponible
+check_curl() {
+    if ! command -v curl &> /dev/null; then
+        print_message $RED "Error: curl no está instalado. Por favor instálalo primero."
+        return 1
+    fi
+    return 0
+}
+
+# Función para obtener nombre de usuario de Windows de forma más robusta
+get_windows_username() {
+    local username=""
+    while true; do
+        read -p "¿Cuál es tu nombre de usuario de Windows? " username
+        username=$(echo "$username" | xargs) # Elimina espacios al inicio/final
+
+        if [ -z "$username" ]; then
+            print_message $YELLOW "El nombre de usuario no puede estar vacío. Intenta de nuevo."
+            continue
+        fi
+
+        local destino="/mnt/c/Users/$username"
+        if [ -d "$destino" ]; then
+            echo "$username"
+            return 0
+        else
+            print_message $YELLOW "La carpeta $destino no existe. Intenta de nuevo."
+        fi
+    done
+}
+
+confVim() {
+    print_message $BLUE "Configurando Vim..."
+
+    if ! check_curl; then
+        return 1
+    fi
+
+    print_message $YELLOW "Descargando Vim-Plug..."
+    if curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim; then
+        print_message $GREEN "Vim-Plug descargado exitosamente."
+    else
+        print_message $RED "Error al descargar Vim-Plug."
+        return 1
+    fi
+
+    if check_file_exists ".vimrc"; then
+        cp ./.vimrc "$HOME/.vimrc"
+        print_message $GREEN "Configuración de Vim copiada exitosamente."
+    else
+        return 1
+    fi
 }
 
 confNvimLinux() {
-  echo "Cargando Vim-Plug..."
-  sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    print_message $BLUE "Configurando Neovim para Linux..."
 
-  # Define la ruta de la carpeta que quieres validar
-  # Asegúrate de usar comillas si la ruta puede contener espacios
-  ruta_nvim="$HOME/.config/nvim/"
+    if ! check_curl; then
+        return 1
+    fi
 
-  # "si NO es un directorio"
-  if [ ! -d "$ruta_nvim" ]; then
-    echo "La carpeta '$ruta_nvim' no existe. Creándola..."
-    # Creamos la carpeta. La opción -p crea directorios padre si son necesarios
-    # y no da error si la carpeta ya existe (aunque ya lo validamos, -p es buena práctica)
-    #
-    mkdir -p "$ruta_nvim"
-  fi
+    print_message $YELLOW "Descargando Vim-Plug..."
+    if sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'; then
+        print_message $GREEN "Vim-Plug descargado exitosamente."
+    else
+        print_message $RED "Error al descargar Vim-Plug."
+        return 1
+    fi
 
-  echo
-  echo "Cangando configuracion de Neovim"
-  cp ./init.vim $ruta_nvim/init.vim
+    local ruta_nvim="$HOME/.config/nvim/"
+
+    if [ ! -d "$ruta_nvim" ]; then
+        print_message $YELLOW "Creando directorio $ruta_nvim..."
+        mkdir -p "$ruta_nvim"
+    fi
+
+    if check_file_exists "init.vim"; then
+        cp ./init.vim "$ruta_nvim/init.vim"
+        print_message $GREEN "Configuración de Neovim copiada exitosamente."
+    else
+        return 1
+    fi
 }
 
-
 confNvimWindows() {
-  echo "Cargando Vim-Plug..."
-  pwsh.exe -c "iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim | ni $HOME/vimfiles/autoload/plug.vim -Force"
+    print_message $BLUE "Configurando Neovim para Windows..."
 
-while true; do
-  read -p "¿Cuál es tu nombre de usuario de Windows? " nombreUser
-  nombreUser=$(echo "$nombreUser" | xargs) # Elimina espacios al inicio/final
-  ruta_nvim="/mnt/c/Users/$nombreUser/AppData/Local/nvim"
-  if [ -d "$ruta_nvim" ]; then
-    break
-  else
-    echo "La carpeta $destino no existe. Intenta de nuevo."
-  fi
-done
+    print_message $YELLOW "Descargando Vim-Plug..."
+    if pwsh.exe -c "iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim | ni $HOME/vimfiles/autoload/plug.vim -Force"; then
+        print_message $GREEN "Vim-Plug descargado exitosamente."
+    else
+        print_message $RED "Error al descargar Vim-Plug."
+        return 1
+    fi
 
-  # "si NO es un directorio"
-  if [ ! -d "$ruta_nvim" ]; then
-    echo "La carpeta '$ruta_nvim' no existe. Creándola..."
-    # Creamos la carpeta. La opción -p crea directorios padre si son necesarios
-    # y no da error si la carpeta ya existe (aunque ya lo validamos, -p es buena práctica)
-    #
-    mkdir -p "$ruta_nvim"
-  fi
+    local username=$(get_windows_username)
+    local ruta_nvim="/mnt/c/Users/$username/AppData/Local/nvim"
 
-  echo
-  echo "Cangando configuracion de Neovim"
-  cp ./init.vim $ruta_nvim/init.vim
+    if [ ! -d "$ruta_nvim" ]; then
+        print_message $YELLOW "Creando directorio $ruta_nvim..."
+        mkdir -p "$ruta_nvim"
+    fi
+
+    if check_file_exists "init.vim"; then
+        cp ./init.vim "$ruta_nvim/init.vim"
+        print_message $GREEN "Configuración de Neovim copiada exitosamente."
+    else
+        return 1
+    fi
 }
 
 confTmux() {
-  echo
-  echo "Cangando configuracion de Tmux"
-  cp ./.tmux.conf $HOME
+    print_message $BLUE "Configurando Tmux..."
+
+    if check_file_exists ".tmux.conf"; then
+        cp ./.tmux.conf "$HOME/.tmux.conf"
+        print_message $GREEN "Configuración de Tmux copiada exitosamente."
+    else
+        return 1
+    fi
 }
 
 confBash() {
-  echo
-  echo "Cangando configuracion de Bash"
-  cp ./.bashrc $HOME
-  cp ./.bash_aliases $HOME
+    print_message $BLUE "Configurando Bash..."
+
+    local files_copied=0
+
+    if check_file_exists ".bashrc"; then
+        cp ./.bashrc "$HOME/.bashrc"
+        print_message $GREEN "Archivo .bashrc copiado exitosamente."
+        ((files_copied++))
+    fi
+
+    if check_file_exists ".bash_aliases"; then
+        cp ./.bash_aliases "$HOME/.bash_aliases"
+        print_message $GREEN "Archivo .bash_aliases copiado exitosamente."
+        ((files_copied++))
+    fi
+
+    if [ $files_copied -eq 0 ]; then
+        print_message $RED "No se encontraron archivos de configuración de Bash."
+        return 1
+    fi
+
+    print_message $GREEN "Configuración de Bash completada."
 }
 
 confWezterm() {
-  echo
-  echo "Cargando configuración de WezTerm"
+    print_message $BLUE "Configurando WezTerm..."
 
-  # Validar que el archivo fuente existe
-  if [ ! -f ./.wezterm.lua ]; then
-    echo "Error: No se encontró el archivo .wezterm.lua en el directorio actual."
-    return 1
-  fi
-
-  while true; do
-    read -p "¿Cuál es tu nombre de usuario de Windows? " nombreUser
-    nombreUser=$(echo "$nombreUser" | xargs) # Elimina espacios al inicio/final
-    destino="/mnt/c/Users/$nombreUser"
-    if [ -d "$destino" ]; then
-      break
-    else
-      echo "La carpeta $destino no existe. Intenta de nuevo."
+    if ! check_file_exists ".wezterm.lua"; then
+        return 1
     fi
-  done
 
-  cp ./.wezterm.lua "$destino/" && \
-    echo "Configuración de WezTerm copiada exitosamente a $destino/" || \
-    echo "Error al copiar el archivo."
+    local username=$(get_windows_username)
+    local destino="/mnt/c/Users/$username"
+
+    if cp ./.wezterm.lua "$destino/.wezterm.lua"; then
+        print_message $GREEN "Configuración de WezTerm copiada exitosamente a $destino/"
+    else
+        print_message $RED "Error al copiar el archivo de WezTerm."
+        return 1
+    fi
 }
 
 confPowerShell() {
-  echo
-  echo "Cangando configuracion de PowerShell"
-  while true; do
-    read -p "¿Cuál es tu nombre de usuario de Windows? " nombreUser
-    nombreUser=$(echo "$nombreUser" | xargs) # Elimina espacios al inicio/final
-    destino="/mnt/c/Users/$nombreUser/Documents/PowerShell"
-    if [ -d "$destino" ]; then
-      break
-    else
-      echo "La carpeta $destino no existe. Intenta de nuevo."
-    fi
-  done
+    print_message $BLUE "Configurando PowerShell..."
 
-  local file="Microsoft.PowerShell_profile.ps1"
-  cp ./$file $destino/$file
+    local username=$(get_windows_username)
+    local destino="/mnt/c/Users/$username/Documents/PowerShell"
+    local file="Microsoft.PowerShell_profile.ps1"
+
+    if [ ! -d "$destino" ]; then
+        print_message $YELLOW "Creando directorio $destino..."
+        mkdir -p "$destino"
+    fi
+
+    if check_file_exists "$file"; then
+        cp "./$file" "$destino/$file"
+        print_message $GREEN "Configuración de PowerShell copiada exitosamente."
+    else
+        return 1
+    fi
 }
 
 confFish() {
-  ruta_fish="$HOME/.config/fish/"
+    print_message $BLUE "Configurando Fish..."
 
-  # "si NO es un directorio"
-  if [ ! -d "$ruta_fish" ]; then
-    echo "La carpeta '$ruta_fish' no existe. Creándola..."
-    # Creamos la carpeta. La opción -p crea directorios padre si son necesarios
-    # y no da error si la carpeta ya existe (aunque ya lo validamos, -p es buena práctica)
-    #
-    mkdir -p "$ruta_fish"
-  fi
+    local ruta_fish="$HOME/.config/fish/"
 
-  echo
-  echo "Cangando configuracion de Fish"
-  cp conf.fish $ruta_fish/conf.fish
+    if [ ! -d "$ruta_fish" ]; then
+        print_message $YELLOW "Creando directorio $ruta_fish..."
+        mkdir -p "$ruta_fish"
+    fi
+
+    if check_file_exists "conf.fish"; then
+        cp conf.fish "$ruta_fish/conf.fish"
+        print_message $GREEN "Configuración de Fish copiada exitosamente."
+    else
+        return 1
+    fi
 }
 
 resetConfigNvim() {
-  echo
-  echo "Resetting configuration"
-  rm -rf ~/.config/nvim
-  rm -rf ~/.local/state/nvim
-  rm -rf ~/.local/share/nvim
-  rm -rf ~/.cache/nvim
-  echo "Configuration reset successfully"
+    print_message $YELLOW "Reseteando configuración de Neovim..."
+
+    local dirs=(
+        "$HOME/.config/nvim"
+        "$HOME/.local/state/nvim"
+        "$HOME/.local/share/nvim"
+        "$HOME/.cache/nvim"
+    )
+
+    for dir in "${dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            rm -rf "$dir"
+            print_message $GREEN "Eliminado: $dir"
+        fi
+    done
+
+    print_message $GREEN "Configuración de Neovim reseteada exitosamente."
+}
+
+show_menu() {
+    echo -e "\n${BLUE}=== Configurador de Herramientas de Desarrollo ===${NC}"
+    echo -e "${YELLOW}a)${NC} Vim"
+    echo -e "${YELLOW}b)${NC} Neovim (Linux)"
+    echo -e "${YELLOW}c)${NC} Neovim (Windows)"
+    echo -e "${YELLOW}d)${NC} Tmux"
+    echo -e "${YELLOW}e)${NC} Fish"
+    echo -e "${YELLOW}f)${NC} Bash"
+    echo -e "${YELLOW}g)${NC} WezTerm"
+    echo -e "${YELLOW}h)${NC} PowerShell"
+    echo -e "${YELLOW}i)${NC} Reset Neovim"
+    echo -e "${YELLOW}q)${NC} Salir"
+    echo -e "${BLUE}===============================================${NC}"
 }
 
 #-----------------------------------------
 # MAIN
 #-----------------------------------------
 
-#Leer opcion a elegir (vim o nvim)
-echo -e "\n a:vim\n b:nvim Linux\n c:nvim Windows\n d:Tmux\n e:Fish\n f:Bash\n g:wezterm\n h:reset nvim"
-read -p "Opcion: " opc
-# TODO agregar configuracion de zathura
+main() {
+    # Verificar que estamos en el directorio correcto
+    if [ ! -f ".vimrc" ] && [ ! -f "init.vim" ] && [ ! -f ".tmux.conf" ]; then
+        print_message $RED "Error: No se encontraron archivos de configuración en el directorio actual."
+        print_message $YELLOW "Asegúrate de ejecutar este script desde el directorio que contiene los archivos de configuración."
+        exit 1
+    fi
 
-case "$opc" in
-a)
-  confVim
-  ;;
-b)
-  confNvimLinux
-  ;;
-c)
-  confNvimWindows
-  ;;
-d)
-  confTmux
-  ;;
-e)
-  confFish
-  ;;
-f)
-  confBash
-  ;;
-g)
-  confWezterm
-  ;;
-h)
-  resetConfigNvim
-  ;;
-*)
-  echo default
-  ;;
-esac
+    while true; do
+        show_menu
+        read -p "Selecciona una opción: " opc
+
+        case "$opc" in
+            a|A)
+                confVim
+                ;;
+            b|B)
+                confNvimLinux
+                ;;
+            c|C)
+                confNvimWindows
+                ;;
+            d|D)
+                confTmux
+                ;;
+            e|E)
+                confFish
+                ;;
+            f|F)
+                confBash
+                ;;
+            g|G)
+                confWezterm
+                ;;
+            h|H)
+                confPowerShell
+                ;;
+            i|I)
+                resetConfigNvim
+                ;;
+            q|Q)
+                print_message $GREEN "¡Hasta luego!"
+                exit 0
+                ;;
+            *)
+                print_message $RED "Opción inválida. Intenta de nuevo."
+                ;;
+        esac
+
+        echo
+        read -p "Presiona Enter para continuar..."
+    done
+}
+
+# Ejecutar el script principal
+main "$@"
