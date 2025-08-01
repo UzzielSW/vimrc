@@ -9,95 +9,113 @@
 "-----------------------------------------
 " 1. GENERIC SETTINGS
 "-----------------------------------------
-set hidden " desactivo un warning molesto al abrir un fichero y tener el actual sin guardar
+set shell=powershell.exe
+set shellcmdflag=-NoLogo\ -ExecutionPolicy\ Bypass\ -Command
+set shellquote=""
+set shellxquote=""
 set clipboard=unnamed " use el portapapeles del sistema para copiar y pegar texto.
-set autoread "Recargar archivos desde el disco automáticamente
-set cul
 "-----------------------------------------
 " 2. FILE SETTINGS
 "-----------------------------------------
 set nobackup
 set nowritebackup
 set noswapfile
-
-set autoindent " Hace que las nuevas líneas hereden la indentación de las líneas anteriores.
-set smartindent " activa la indentación inteligente para otros lenguajes
-set sw=2 " Establece el ancho del desplazamiento a 2 espacios. Esto afecta a los comandos de indentación y desindentación.
-set softtabstop=2
-
-set scrolloff=8 "añadir un márgen de unas líneas cuando haces scroll bajando o subiendo el cursor por la pantalla
-set ic " Ignora las mayúsculas y minúsculas al realizar una búsqueda.
-set ff=unix " Establece el formato del archivo a unix, lo que significa que las líneas terminan con un salto de línea (\n) en lugar de un retorno de carro y un salto de línea (\r\n).
+" set signcolumn=no
+set autoindent " Hace que las nuevas lineas hereden la indentacion de las lineas anteriores.
+set ff=unix " Establece el formato del archivo a unix, lo que significa que las lineas terminan con un salto de linea (\n) en lugar de un retorno de carro y un salto de linea (\r\n).
 
 "-----------------------------------------
 " 3. UI
 "-----------------------------------------
-set fillchars+=vert:\ 
-set number " Muestra los números de línea en el lado izquierdo de la pantalla.
-" set hlsearch " Resalta todas las coincidencias de la búsqueda actual.
-set nohlsearch " clear highlight after a search
-set showmatch " hace que vim muestre el paréntesis, corchete o llave que coincide con el que está bajo el cursor.
-set tabstop=2 "Establece el ancho de la tabulación a 2 columnas. Esto afecta a la visualización de las tabulaciones en el archivo.
-set wildmenu " tengas un pequeño autocompletado de los comandos que escribes con los dos puntos
-set showcmd " muestra el comando parcial que has introducido en la parte inferior derecha de la pantalla.
-set ruler " muestra información sobre la posición del cursor y el estado del archivo en la parte inferior derecha de la pantalla
-set laststatus=2 " muestre siempre la barra de estado en la parte inferior de la pantalla
+set hlsearch " Resalta todas las coincidencias de la busqueda actual.
 set backspace=indent,eol,start
 
 "-----------------------------------------
 " 4. MAPS AND FUNCTIONS
 "-----------------------------------------
-set splitbelow splitright " la hora de dividir la pantalla en varios ficheros a la vez, siempre se abran a la derecha y abajo
-" set termguicolors " esto pone el fondo negro haciendo que los temas se vean mal
-
-"ejemplo Control + l para moverme al split de la derecha, Control + k para moverme al de arriba.
-map <C-h> <C-w>h
-map <C-j> <C-w>j
-map <C-k> <C-w>k
-map <C-l> <C-w>l
-
-" resize de los splits de manera más comoda para terminal: > (mas ancho), + mas alto
-nnoremap <silent> <C-w>> 4<C-w>>
-nnoremap <silent> <C-w>< 4<C-w><
-nnoremap <silent> <C-w>+ 4<C-w>+
-nnoremap <silent> <C-w>- 4<C-w>-
-
-" configuracion de los buffer
-map L :bnext<CR>
-map H :bprev<CR>
-imap <C-L> <Esc>:bnext<CR>a
-imap <C-H> <Esc>:bprev<CR>a
-
 nnoremap n nzzzv
 nnoremap N Nzzzv
 nnoremap * *zzzv
 
-" Código a ejecutar si g:vscode no existe
-if !exists('g:vscode')
-  nnoremap <silent> <C-q> :bd<CR>
-endif
-
 " Configuracion de macros y atajos
 let mapleader = ","
 imap jk <ESC>
-nmap <leader>sr :source ~/AppData/Local/nvim/init.vim <CR>
-nmap <leader>eg :e ~/AppData/Local/nvim/init.vim <CR>
-nmap <leader>q :wq <CR>
-nmap <leader>qq :q! <CR>
-nmap <leader>F :Format <CR>
-map Q gg0vG$y
-map D gg0vG$d
-map X :%s/.*\n//g <CR>
-map R :%s/\n/ /g <CR>
-map E ojk
-"cada que se hace <CR> se esta ejecutando un shell diferente
-nmap <leader>rj :w<CR>:!clear<CR>:!cd "%:p:h"; ls; javac "%:t" *.java; java "%:t:r"<CR>
-nmap <leader>ru :w<CR>:!clear<CR>:!java "%"<CR>
-nmap <leader>rp :w<CR>:!clear<CR>:!python "%"<CR>
-nmap <leader>rm :!cd "%:p:h"; rm *.class<CR>
-"* g++ -o nombre_del_ejecutable nombre_del_archivo.cpp */
-nmap <leader>rc :w<CR>:!clear<CR>:!g++ "%" && ./a<CR>
 
+nnoremap <C-y> gg0vG$y
+nnoremap W gg0vG$y
+nnoremap <C-t> :tabnew <CR>
+nnoremap X :%s/.*\n//g <CR>
+nnoremap F :%s/\n/ /g <CR>
+nmap E o<ESC>
+nmap S :%s/ /g
+map p ]p
+nnoremap w W
+nnoremap yw yiw
+nnoremap dw diw
+nnoremap cw ciw
+nnoremap W :w <CR>
+nnoremap <C-f> /!  <CR>
+vnoremap R y:let @/ = '\V' . escape(@", '\/')<CR>:%s///g<Left><Left>
+inoremap <C-p> <C-o>]p
+inoremap <C-j> <C-o>o
+inoremap <C-b> <C-o>B
+inoremap <C-w> <C-o>W
+inoremap <C-a> <C-o>A
+
+"cada que se hace <CR> se esta ejecutando un shell diferente
+
+" Reemplazo de acentos
+" Forma 1: (funciona pero se vueve tediosa al ampliarlo)
+" nnoremap <silent> t :silent! %s/a/a/g \| silent! %s/e/e/g \| silent! %s/i/i/g \| silent! %s/o/o/g \| silent! %s/u/u/g<CR>
+
+" Forma 2: escalable
+" NORMALIZAR ACENTOS, SIMBOLOS TIPOGRAFICOS, GUIONES, ESPACIOS RAROS, ETC.
+function! CleanAccentsAndSymbols()
+  let replacements = {
+        \ 'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
+        \ 'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
+        \ 'ü': 'u', 'Ü': 'U',
+        \ '“': '"', '”': '"',
+        \ '‘': "'", '’': "'",
+        \ '—': '-', '–': '-',
+        \ '…': '...',
+        \ ' ': ' ',
+        \ "\u200b": '',
+        \ }
+
+  for [search, replace] in items(replacements)
+    " Usamos 'e' al final del comando :s para no dar error si no se encuentra el patrón
+    let cmd = 'silent! %s/' . escape(search, '/\') . '/' . escape(replace, '/\') . '/ge'
+    execute cmd
+  endfor
+
+  echo "Caracteres problematicos limpiados."
+endfunction
+
+nnoremap <silent> t :call CleanAccentsAndSymbols()<CR>
+
+" ELIMINAR CARACTERES BASURA
+function! DeepCleanGarbage()
+  let replacements = {
+        \ '\r': '',
+        \ '\x00': '',
+        \ '[\x01-\x1F\x7F]': '',
+        \ ' ': ' ',
+        \ '\u00AD': '',
+        \ '\u200B': '',
+        \ '': '',
+        \ '': ''
+        \ }
+
+  for [pattern, replace] in items(replacements)
+    let cmd = 'silent! %s/' . pattern . '/' . replace . '/g'
+    silent execute cmd
+  endfor
+
+	echo "Caracteres raros limpiados."
+endfunction
+
+nnoremap <silent> M :call DeepCleanGarbage()<CR>
 
 " ---------------------------------surround---------------------------------------
     " Old text                    Command         New text
@@ -112,46 +130,134 @@ nmap <leader>rc :w<CR>:!clear<CR>:!g++ "%" && ./a<CR>
 
 call plug#begin('~/.vim/plugged')
 
-" Principales
+" Plugins que funcionan en VSCode
 Plug 'easymotion/vim-easymotion'
-Plug 'preservim/nerdtree', { 'on': 'NERDTreeToggle' }
-Plug 'neovim/nvim-lspconfig'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'tpope/vim-commentary'
-Plug 'mg979/vim-visual-multi'
-Plug '907th/vim-auto-save'
 Plug 'tpope/vim-surround'
-Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
-Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
-Plug 'folke/which-key.nvim'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-
-
-Plug 'arminveres/md-pdf.nvim', {'branch': 'main'}
-" Apariencia
-Plug 'lanox/lanox-vim-theme'
-Plug 'ryanoasis/vim-devicons'
-Plug 'lukas-reineke/indent-blankline.nvim'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
 Plug 'machakann/vim-highlightedyank'
+
+" Plugins SOLO para Neovim standalone
+if !exists('g:vscode')
+	Plug '907th/vim-auto-save'
+	Plug 'mg979/vim-visual-multi'
+  Plug 'preservim/nerdtree'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'folke/which-key.nvim'
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'lanox/lanox-vim-theme'
+  Plug 'ryanoasis/vim-devicons'
+  Plug 'lukas-reineke/indent-blankline.nvim'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-airline/vim-airline-themes'
+endif
 
 call plug#end()
 
 
-lua<<EOF
+" --------------------------easymotion-----------------------------------
+let g:EasyMotion_do_mapping = 0 " Disable default mappings
 
-if not vim.g.vscode then
+nmap f <Plug>(easymotion-overwin-f)
+" s{char}{char} to move to {char}{char}
+nmap s <Plug>(easymotion-overwin-f2)
+
+" Move to line
+map <Leader>L <Plug>(easymotion-bd-jk)
+nmap <Leader>L <Plug>(easymotion-overwin-line)
+
+" Move to word
+map  <Leader>w <Plug>(easymotion-bd-w)
+nmap <Leader>w <Plug>(easymotion-overwin-w)
+
+" basicos
+map <Leader>l <Plug>(easymotion-lineforward)
+map <Leader>j <Plug>(easymotion-j)
+map <Leader>k <Plug>(easymotion-k)
+map <Leader>h <Plug>(easymotion-linebackward)
+
+let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
+
+
+"-------------------------------------------------------------------------NO VSCODE CONFIG--------------------------------------------------------------------------
+if exists('g:vscode')
+  " ¡Detiene la ejecucion! No carga el resto del archivo
+  finish
+endif
+
+" --------------------------config. basica-----------------------------------
+set autoread "Recargar archivos desde el disco automaticamente
+set cul
+set scrolloff=12 "añadir un margen de unas lineas cuando haces scroll bajando o subiendo el cursor por la pantalla
+set sw=2 " Establece el ancho del desplazamiento a 2 espacios. Esto afecta a los comandos de indentacion y desindentacion.
+set softtabstop=2
+set tabstop=2 "Establece el ancho de la tabulacion a 2 columnas. Esto afecta a la visualizacion de las tabulaciones en el archivo.
+set fillchars+=vert:\
+set number " Muestra los numeros de linea en el lado izquierdo de la pantalla.
+set relativenumber " poner los numeros relativos a la posicion del cursor
+set showmatch " hace que vim muestre el parentesis, corchete o llave que coincide con el que esta bajo el cursor.
+set wildmenu " tengas un pequeño autocompletado de los comandos que escribes con los dos puntos
+set showcmd " muestra el comando parcial que has introducido en la parte inferior derecha de la pantalla.
+set splitbelow splitright " la hora de dividir la pantalla en varios ficheros a la vez, siempre se abran a la derecha y abajo
+
+"ejemplo Control + l para moverme al split de la derecha, Control + k para moverme al de arriba.
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" resize de los splits de manera mas comoda para terminal: > (mas ancho), + mas alto
+nnoremap <silent> <C-w>> 4<C-w>>
+nnoremap <silent> <C-w>< 4<C-w><
+nnoremap <silent> <C-w>+ 4<C-w>+
+nnoremap <silent> <C-w>- 4<C-w>-
+
+" configuracion de los buffer
+nnoremap L :bnext<CR>
+nnoremap H :bprev<CR>
+inoremap <C-L> <Esc>:bnext<CR>a
+inoremap <C-H> <Esc>:bprev<CR>a
+
+
+" MAPEOS para ejecutar
+nnoremap <leader>rj :w<CR>:!clear<CR>:!cd "%:p:h"; ls; javac "%:t" *.java; java "%:t:r"<CR>
+nnoremap <leader>ru :w<CR>:!clear<CR>:!java "%"<CR>
+nnoremap <leader>rp :w<CR>:!clear<CR>:!python "%"<CR>
+nnoremap <leader>rm :!cd "%:p:h"; rm *.class<CR>
+"* g++ -o nombre_del_ejecutable nombre_del_archivo.cpp */
+nnoremap <leader>rc :w<CR>:!clear<CR>:!g++ "%" && ./a<CR>
+"-- Configuraciones
+"Linux
+" nnoremap <leader>sr :source ~/.config/nvim/init.vim <CR>
+" nnoremap <leader>eg :e ~/.config/nvim/init.vim <CR>
+"Windows
+nnoremap <leader>sr :source ~/AppData/Local/nvim/init.vim <CR>
+nnoremap <leader>eg :e ~/AppData/Local/nvim/init.vim <CR>
+nnoremap <C-o> :e ~/Videos/edit.md <CR>
+"--
+nnoremap <silent> <C-q> :w<CR>:bd \| bw <CR>
+nnoremap Q :wq <CR>
+nnoremap <leader>q :bd! <CR>
+nnoremap <leader>qq :q! <CR>
+
+nnoremap <leader>F :Format <CR>
+
+" --------------------------auto_save-----------------------------------
+let g:auto_save = 1
+let g:auto_save_events = ["InsertLeave", "CompleteDone"]
+
+" --------------------------Python-----------------------------------
+" Para los plugins de Python necesitas el pynvim modulo. Se recomiendan Envs virtuales. Despues de activar el env virtual do pip install pynvim (en ambos).
+" Edita tu init.vim para que contenga la ruta al ejecutable de Python del env:
+let g:python3_host_prog='C:/Users/USUARIO/.venv/Scripts/python.exe'
+
+"-------------------------------------------------------------------------CONFIG LUA--------------------------------------------------------------------------------
+lua<<EOF
 --------------------------------------treesitter---------------------------------------
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all" (the listed parsers MUST always be installed)
-  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline" },
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "sql", "python", "bash", "json", "javascript"},
 
-  -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
-
-  -- Automatically install missing parsers when entering buffer
-  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
   auto_install = true,
 
   -- List of parsers to ignore installing (or "all")
@@ -160,9 +266,6 @@ require'nvim-treesitter.configs'.setup {
   highlight = {
     enable = true,
 
-    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
-    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
-    -- the name of the parser)
     -- list of language that will be disabled
     -- disable = { "c", "rust" },
     -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
@@ -181,7 +284,6 @@ require'nvim-treesitter.configs'.setup {
     additional_vim_regex_highlighting = false,
   },
 }
-
 
 --------------------------------------indent-blankline---------------------------------------
   local highlight = {
@@ -208,115 +310,24 @@ require'nvim-treesitter.configs'.setup {
   end)
 
   require("ibl").setup { indent = { highlight = highlight } }
-
-
---------------------------------------LSP---------------------------------------
-require'lspconfig'.pyright.setup{}
-require'lspconfig'.java_language_server.setup{}
-
--- Global mappings.
--- See `:help vim.diagnostic.*` for documentation on any of the below functions
-vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
-
--- Use LspAttach autocommand to only map the following keys
--- after the language server attaches to the current buffer
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('UserLspConfig', {}),
-  callback = function(ev)
-    -- Enable completion triggered by <c-x><c-o>
-    vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
-    -- Buffer local mappings.
-    -- See `:help vim.lsp.*` for documentation on any of the below functions
-    local opts = { buffer = ev.buf }
-    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-    vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
-    vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
-    vim.keymap.set('n', '<space>wl', function()
-      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-    end, opts)
-    vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
-    vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
-    vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, opts)
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-    vim.keymap.set('n', '<space>f', function()
-      vim.lsp.buf.format { async = true }
-    end, opts)
-  end,
-})
-
-end
--- fin del if para validar que no sea vscode
 EOF
-
-" --------------------------Python-----------------------------------
-" Para los plugins de Python necesitas el pynvim módulo. Se recomiendan Envs virtuales. Después de activar el env virtual do pip install pynvim (en ambos). Edita tu init.vim para que contenga la ruta al ejecutable de Python del env:
-let g:python3_host_prog='C:/Users/USUARIO/.venv/Scripts/python.exe'
+"-------------------------------------------------------------------------CONFIG LUA--------------------------------------------------------------------------------
 
 " --------------------------NERDTree-----------------------------------
-" If another buffer tries to replace NERDTree, put it in the other window, and bring back NERDTree.
-autocmd BufEnter * if winnr() == winnr('h') && bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
-    \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
-
-" let g:NERDTreeChDirMode=2
-" let g:NERDTreeIgnore=['\.rbc$', '\~$', '\.pyc$', '\.db$', '\.sqlite$', '__pycache__', '\.dat.$', '\.DAT']
-" let g:NERDTreeSortOrder=['^__\.py$', '\/$', '*', '\.swp$', '\.bak$', '\~$']
-" let g:NERDTreeShowBookmarks=1
-" let g:nerdtree_tabs_focus_on_files=1
-" let g:NERDTreeMapOpenInTabSilent = '<RightMouse>'
-let g:NERDTreeWinSize = 35
+let g:NERDTreeWinSize = 50
 " let g:NERDTreeShowHidden = 1
 " let g:NERDTreeQuitOnOpen = 0
-"autocmd BufEnter * NERDTreeFind
-" set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,*.class
-
-nmap <Leader>nt :NERDTreeToggle<CR>
-nmap <Leader>nf :NERDTreeFind<CR>
-
-" --------------------------easymotion-----------------------------------
-let g:EasyMotion_do_mapping = 0 " Disable default mappings
-
-" s{char}{char} to move to {char}{char}
-nmap s <Plug>(easymotion-overwin-f2)
-
-" Move to line
-map <Leader>L <Plug>(easymotion-bd-jk)
-nmap <Leader>L <Plug>(easymotion-overwin-line)
-
-" Move to word
-map  <Leader>w <Plug>(easymotion-bd-w)
-nmap <Leader>w <Plug>(easymotion-overwin-w)
-
-" basicos
-map <Leader>l <Plug>(easymotion-lineforward)
-map <Leader>j <Plug>(easymotion-j)
-map <Leader>k <Plug>(easymotion-k)
-map <Leader>h <Plug>(easymotion-linebackward)
-
-let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
-
-" --------------------------auto_save-----------------------------------
-let g:auto_save = 1
-let g:auto_save_events = ["InsertLeave", "TextChanged"]
+let g:NERDTreeWinPos = "right"
+nmap <C-b> :NERDTreeToggle<CR>
 
 " --------------------------theme-----------------------------------
 set background=dark
-colorscheme lanox 
+colorscheme lanox
 
 " --------------------------airline_theme-----------------------------------
+
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme='simple'
-
-" set guifont=ProFontWindows\ Nerd\ Font:h15
-" set guifont=Terminess\ Nerd\ Font:h15
-" set guifont=Terminess\ Nerd\ Font\ Mono:h15
 
 " testing rounded separators (extra-powerline-symbols):
 let g:airline_left_sep = "\uE0c6"
@@ -326,6 +337,11 @@ let g:airline_right_sep = "\uE0b2"
 let g:airline_section_z = airline#section#create(["\uE0A1" . '%{line(".")}' . "\uE0A3" . '%{col(".")}'])
 
 "--------------------------COC-------------------------------------
+set encoding=utf-8
+" Some servers have issues with backup files, see #649
+set nobackup
+set nowritebackup
+
 " Having longer updatetime (default is 4000 ms = 4s) leads to noticeable
 " delays and poor user experience
 set updatetime=300
@@ -364,14 +380,15 @@ endif
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent><nowait> [g <Plug>(coc-diagnostic-prev)
+nmap <silent><nowait> ]g <Plug>(coc-diagnostic-next)
 
 " GoTo code navigation
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+nmap <silent><nowait> gd <Plug>(coc-definition)
+nmap <silent><nowait> gy <Plug>(coc-type-definition)
+nmap <silent><nowait> gi <Plug>(coc-implementation)
+nmap <silent><nowait> gr <Plug>(coc-references)
+
 " Use K to show documentation in preview window
 nnoremap <silent> K :call ShowDocumentation()<CR>
 
@@ -397,11 +414,8 @@ augroup mygroup
   autocmd!
   " Setup formatexpr specified filetype(s)
   autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  " Update signature help on jump placeholder
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
 
-"UTILES
 " Applying code actions to the selected code block
 " Example: `<leader>aap` for current paragraph
 xmap <leader>a  <Plug>(coc-codeaction-selected)
@@ -433,16 +447,6 @@ omap ic <Plug>(coc-classobj-i)
 xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
 
-" Remap <C-f> and <C-b> to scroll float windows/popups
-if has('nvim-0.4.0') || has('patch-8.2.0750')
-  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-endif
-
 " Use CTRL-S for selections ranges
 " Requires 'textDocument/selectionRange' support of language server
 nmap <silent> <C-s> <Plug>(coc-range-select)
@@ -460,8 +464,6 @@ command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.org
 " Add (Neo)Vim's native statusline support
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
 " provide custom statusline: lightline.vim, vim-airline
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
 " Mappings for CoCList
 " Show all diagnostics
 nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
@@ -479,3 +481,5 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+set signcolumn=number
