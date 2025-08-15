@@ -1,3 +1,6 @@
+-- Install: winget install wez.wezterm
+-- Update: winget upgrade wez.wezterm
+
 local wezterm = require("wezterm")
 
 local config = wezterm.config_builder()

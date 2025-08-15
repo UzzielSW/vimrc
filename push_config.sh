@@ -59,6 +59,25 @@ get_windows_username() {
     done
 }
 
+# Función para copiar archivo con validación y manejo de errores
+copy_file_with_validation() {
+    local source=$1
+    local destination=$2
+    local description=$3
+
+    if check_file_exists "$source"; then
+        if cp "$source" "$destination"; then
+            print_message $GREEN "✓ $description copiado exitosamente."
+            return 0
+        else
+            print_message $RED "✗ Error al copiar $description"
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
 confVim() {
     print_message $BLUE "Configurando Vim..."
 
@@ -75,9 +94,8 @@ confVim() {
         return 1
     fi
 
-    if check_file_exists ".vimrc"; then
-        cp ./.vimrc "$HOME/.vimrc"
-        print_message $GREEN "Configuración de Vim copiada exitosamente."
+    if copy_file_with_validation ".vimrc" "$HOME/.vimrc" "Configuración de Vim"; then
+        print_message $GREEN "Configuración de Vim aplicada exitosamente."
     else
         return 1
     fi
@@ -106,9 +124,8 @@ confNvimLinux() {
         mkdir -p "$ruta_nvim"
     fi
 
-    if check_file_exists "init.vim"; then
-        cp ./init.vim "$ruta_nvim/init.vim"
-        print_message $GREEN "Configuración de Neovim copiada exitosamente."
+    if copy_file_with_validation "init.vim" "$ruta_nvim/init.vim" "Configuración de Neovim"; then
+        print_message $GREEN "Configuración de Neovim aplicada exitosamente."
     else
         return 1
     fi
@@ -133,9 +150,8 @@ confNvimWindows() {
         mkdir -p "$ruta_nvim"
     fi
 
-    if check_file_exists "init.vim"; then
-        cp ./init.vim "$ruta_nvim/init.vim"
-        print_message $GREEN "Configuración de Neovim copiada exitosamente."
+    if copy_file_with_validation "init.vim" "$ruta_nvim/init.vim" "Configuración de Neovim"; then
+        print_message $GREEN "Configuración de Neovim aplicada exitosamente."
     else
         return 1
     fi
@@ -144,9 +160,8 @@ confNvimWindows() {
 confTmux() {
     print_message $BLUE "Configurando Tmux..."
 
-    if check_file_exists ".tmux.conf"; then
-        cp ./.tmux.conf "$HOME/.tmux.conf"
-        print_message $GREEN "Configuración de Tmux copiada exitosamente."
+    if copy_file_with_validation ".tmux.conf" "$HOME/.tmux.conf" "Configuración de Tmux"; then
+        print_message $GREEN "Configuración de Tmux aplicada exitosamente."
     else
         return 1
     fi
@@ -157,15 +172,11 @@ confBash() {
 
     local files_copied=0
 
-    if check_file_exists ".bashrc"; then
-        cp ./.bashrc "$HOME/.bashrc"
-        print_message $GREEN "Archivo .bashrc copiado exitosamente."
+    if copy_file_with_validation ".bashrc" "$HOME/.bashrc" "Archivo .bashrc"; then
         ((files_copied++))
     fi
 
-    if check_file_exists ".bash_aliases"; then
-        cp ./.bash_aliases "$HOME/.bash_aliases"
-        print_message $GREEN "Archivo .bash_aliases copiado exitosamente."
+    if copy_file_with_validation ".bash_aliases" "$HOME/.bash_aliases" "Archivo .bash_aliases"; then
         ((files_copied++))
     fi
 
@@ -180,17 +191,12 @@ confBash() {
 confWezterm() {
     print_message $BLUE "Configurando WezTerm..."
 
-    if ! check_file_exists ".wezterm.lua"; then
-        return 1
-    fi
-
     local username=$(get_windows_username)
     local destino="/mnt/c/Users/$username"
 
-    if cp ./.wezterm.lua "$destino/.wezterm.lua"; then
-        print_message $GREEN "Configuración de WezTerm copiada exitosamente a $destino/"
+    if copy_file_with_validation ".wezterm.lua" "$destino/.wezterm.lua" "Configuración de WezTerm"; then
+        print_message $GREEN "Configuración de WezTerm aplicada exitosamente."
     else
-        print_message $RED "Error al copiar el archivo de WezTerm."
         return 1
     fi
 }
@@ -207,9 +213,8 @@ confPowerShell() {
         mkdir -p "$destino"
     fi
 
-    if check_file_exists "$file"; then
-        cp "./$file" "$destino/$file"
-        print_message $GREEN "Configuración de PowerShell copiada exitosamente."
+    if copy_file_with_validation "$file" "$destino/$file" "Configuración de PowerShell"; then
+        print_message $GREEN "Configuración de PowerShell aplicada exitosamente."
     else
         return 1
     fi
@@ -225,12 +230,60 @@ confFish() {
         mkdir -p "$ruta_fish"
     fi
 
-    if check_file_exists "conf.fish"; then
-        cp conf.fish "$ruta_fish/conf.fish"
-        print_message $GREEN "Configuración de Fish copiada exitosamente."
+    if copy_file_with_validation "conf.fish" "$ruta_fish/conf.fish" "Configuración de Fish"; then
+        print_message $GREEN "Configuración de Fish aplicada exitosamente."
     else
         return 1
     fi
+}
+
+confIntelJ() {
+    print_message $BLUE "Configurando IntelJ IDEA..."
+
+    local username=$(get_windows_username)
+    local destino="/mnt/c/Users/$username"
+
+    if copy_file_with_validation ".ideavimrc" "$destino/.ideavimrc" "Configuración de IntelJ IDEA"; then
+        print_message $GREEN "Configuración de IntelJ IDEA aplicada exitosamente."
+    else
+        return 1
+    fi
+}
+
+confCursor() {
+    print_message $BLUE "Configurando Cursor (Windows)..."
+
+    local username=$(get_windows_username)
+    local destino_base="/mnt/c/Users/$username"
+
+    # Cursor
+    local cursor_settings_repo="cursor_settings.json"
+    local cursor_keybindings_repo="cursor_keybindings.json"
+    local cursor_dest_dir="$destino_base/AppData/Roaming/Cursor/User"
+    local cursor_settings_dest="$cursor_dest_dir/settings.json"
+    local cursor_keybindings_dest="$cursor_dest_dir/keybindings.json"
+
+    if [ ! -d "$cursor_dest_dir" ]; then
+        print_message $YELLOW "Creando directorio $cursor_dest_dir..."
+        mkdir -p "$cursor_dest_dir"
+    fi
+
+    local files_copied=0
+
+    if copy_file_with_validation "$cursor_settings_repo" "$cursor_settings_dest" "Configuración de Cursor (settings.json)"; then
+        ((files_copied++))
+    fi
+
+    if copy_file_with_validation "$cursor_keybindings_repo" "$cursor_keybindings_dest" "Configuración de Cursor (keybindings.json)"; then
+        ((files_copied++))
+    fi
+
+    if [ $files_copied -eq 0 ]; then
+        print_message $RED "No se pudo aplicar ninguna configuración de Cursor."
+        return 1
+    fi
+
+    print_message $GREEN "Configuración de Cursor aplicada exitosamente."
 }
 
 resetConfigNvim() {
@@ -263,7 +316,9 @@ show_menu() {
     echo -e "${YELLOW}f)${NC} Bash"
     echo -e "${YELLOW}g)${NC} WezTerm"
     echo -e "${YELLOW}h)${NC} PowerShell"
-    echo -e "${YELLOW}i)${NC} Reset Neovim"
+    echo -e "${YELLOW}i)${NC} IntelJ IDEA"
+    echo -e "${YELLOW}j)${NC} Cursor (Windows)"
+    echo -e "${YELLOW}k)${NC} Reset Neovim"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
 }
@@ -310,6 +365,12 @@ main() {
                 confPowerShell
                 ;;
             i|I)
+                confIntelJ
+                ;;
+            j|J)
+                confCursor
+                ;;
+            k|K)
                 resetConfigNvim
                 ;;
             q|Q)

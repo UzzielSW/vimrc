@@ -29,6 +29,9 @@ set ff=unix " Establece el formato del archivo a unix, lo que significa que las 
 "-----------------------------------------
 set hlsearch " Resalta todas las coincidencias de la busqueda actual.
 set backspace=indent,eol,start
+set showbreak=↪\
+set wrap
+set linebreak
 
 "-----------------------------------------
 " 4. MAPS AND FUNCTIONS
@@ -40,9 +43,7 @@ nnoremap * *zzzv
 " Configuracion de macros y atajos
 let mapleader = ","
 imap jk <ESC>
-
 nnoremap <C-y> gg0vG$y
-nnoremap W gg0vG$y
 nnoremap <C-t> :tabnew <CR>
 nnoremap X :%s/.*\n//g <CR>
 nnoremap F :%s/\n/ /g <CR>
@@ -154,6 +155,9 @@ endif
 call plug#end()
 
 
+" --------------------------temp_auto_save-----------------------------------
+let g:auto_save = 1
+let g:auto_save_events = ["InsertLeave", "TextChanged"]
 " --------------------------easymotion-----------------------------------
 let g:EasyMotion_do_mapping = 0 " Disable default mappings
 

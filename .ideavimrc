@@ -1,0 +1,103 @@
+" .ideavimrc is a configuration file for IdeaVim plugin. It uses
+"   the same commands as the original .vimrc configuration.
+" You can find a list of commands here: https://jb.gg/h38q75
+" Find more examples here: https://jb.gg/share-ideavimrc
+" Por ejemplo, el plugin IdeaVim no soporta los mapas de teclas que usan la tecla Alt.
+" Source your .vimrc
+source ~/AppData/Local/nvim/init.vim
+" Map leader to space ---------------------
+let mapleader=","
+nnoremap \r :action IdeaVim.ReloadVimRc.reload<CR>
+
+""" Plugins  --------------------------------
+set surround
+set commentary
+set argtextobj
+set easymotion
+set textobj-entire
+set ReplaceWithRegister
+set multicursor
+
+Plug 'preservim/nerdtree'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'machakann/vim-highlightedyank'
+
+""" Plugin settings -------------------------
+let g:argtextobj_pairs="[:],(:),<:>"
+
+""" Common settings -------------------------
+set so=5
+set incsearch
+
+""" Idea specific settings ------------------
+set ideajoin
+set ideamarks
+set ideastatusicon=gray
+set idearefactormode=keep
+
+""" Mappings --------------------------------
+map s <Plug>(easymotion-f)
+map f <Plug>(easymotion-bd-f)
+map <Leader>w <Plug>(easymotion-bd-w)
+
+" Funciones IDE
+map <leader>rj <Action>(RunClass)
+map <leader>rn <Action>(RenameElement) "cambia todas las referencias
+map <leader>nf <Action>(SelectInProjectView) "te ubica en el archivo actual en el panel del proyecto
+map <leader>o <Action>(FileStructurePopup) "ver la estructura del file, buscar variables o funciones
+"map \r <Action>(ReformatCode)
+map <leader>F <Action>(ReformatCode)
+nnoremap <c-r> :action GotoFile<CR>
+nnoremap <c-f> :action FindInPath<CR>
+
+
+map md :delmarks! <CR>
+
+" FOLDING
+" zc colapse
+" zo expand
+
+"map <c--> :action SplitHorizontally<CR>
+map <c--> :action SplitVertically<CR>
+
+" MAPEO DE LOS MULTICURSORES
+map <C-n> <A-n>
+map <C-x> <A-x>
+map <C-p> <A-p>
+
+" SURROUND
+" cs cambiar surround
+" ds borrar surround
+" cst cambiar surround tag
+" dst borrar surround tag
+" ys surround text object
+
+" cs'" cambia las comillas por comillas dobles
+" ds' borra las comillas
+" ysiw' agrega las comillas
+" ysiw" agrega las comillas
+" otra forma de agregar comillas o cuaquier limitdor de palabra es seleccionandolo y luego. S+(limitador)
+" ejemplo: seleccionar,luego S" o S<b>
+" quitarlo: dst
+" cambiarlo: cst<limitadorNuevo>
+
+" NERDTREE
+" alt-1 open/close nerdtree
+" escape close nerdtree
+" A vista expandida
+" J ultimo elemento carpeta
+" K primer elemento carpeta
+" p padre
+" P root padre
+" R recargar
+" O open recursivamente
+" X cerrar recursivamente
+" m opciones
+" go abrir archivo y seguir en el panel
+" i abrir en horizontal
+" s abrir en vertical
+
+nnoremap <leader>t :action Terminal.OpenInTerminal<CR> "abre terminal normal
+map <C-t> <Action>(ActivateTerminalToolWindow) "abre terminal en el root del proyecto
+
+nnoremap <c-m> :action MoveEditorToOppositeTabGroup<CR> " se utiliza para moverse entre pestañas cuando se trabaja con pestañas dividas

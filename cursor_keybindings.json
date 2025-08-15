@@ -1,0 +1,20 @@
+[
+  {
+    "args": "<C-y>",
+    "command": "vscode-neovim.send",
+    "key": "ctrl+y",
+    "when": "editorFocus && neovim.init"
+  },
+  {
+    "args": "<C-f>",
+    "command": "vscode-neovim.send",
+    "key": "ctrl+f",
+    "when": "editorFocus && neovim.init"
+  },
+  {
+    "args": "<C-p>",
+    "command": "vscode-neovim.send",
+    "key": "ctrl+p",
+    "when": "editorFocus && neovim.init"
+  }
+]

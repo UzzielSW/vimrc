@@ -2,201 +2,267 @@
 
 # Script para actualizar los archivos de configuración del repositorio
 # con los cambios realizados en la configuración local
+# Autor: Uzziel
+# Versión: 1.0
+
+# Colores para output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Función para imprimir mensajes con colores
+print_message() {
+    local color=$1
+    local message=$2
+    echo -e "${color}${message}${NC}"
+}
+
+# Función para validar si un archivo existe
+check_file_exists() {
+    local file=$1
+    if [ ! -f "$file" ]; then
+        print_message $RED "Error: No se encontró el archivo $file en la configuración local."
+        return 1
+    fi
+    return 0
+}
+
+# Función para obtener nombre de usuario de Windows de forma más robusta
+get_windows_username() {
+    local username=""
+    while true; do
+        read -p "¿Cuál es tu nombre de usuario de Windows? " username
+        username=$(echo "$username" | xargs) # Elimina espacios al inicio/final
+
+        if [ -z "$username" ]; then
+            print_message $YELLOW "El nombre de usuario no puede estar vacío. Intenta de nuevo."
+            continue
+        fi
+
+        local destino="/mnt/c/Users/$username"
+        if [ -d "$destino" ]; then
+            echo "$username"
+            return 0
+        else
+            print_message $YELLOW "La carpeta $destino no existe. Intenta de nuevo."
+        fi
+    done
+}
+
+# Función para copiar archivo con validación
+copy_file_with_validation() {
+    local source=$1
+    local destination=$2
+    local description=$3
+
+    if check_file_exists "$source"; then
+        if cp "$source" "$destination"; then
+            print_message $GREEN "✓ $description actualizado"
+            return 0
+        else
+            print_message $RED "✗ Error al copiar $description"
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
 
 pullVim() {
-  echo "Actualizando configuración de Vim..."
-  if [ -f "$HOME/.vimrc" ]; then
-    cp "$HOME/.vimrc" ./.vimrc
-    echo "✓ .vimrc actualizado"
-  else
-    echo "✗ No se encontró $HOME/.vimrc"
-  fi
+    print_message $BLUE "Actualizando configuración de Vim..."
+    copy_file_with_validation "$HOME/.vimrc" "./.vimrc" ".vimrc"
 }
 
 pullNvimLinux() {
-  echo "Actualizando configuración de Neovim (Linux)..."
-  local ruta_nvim="$HOME/.config/nvim/"
-
-  if [ -f "$ruta_nvim/init.vim" ]; then
-    cp "$ruta_nvim/init.vim" ./init.vim
-    echo "✓ init.vim actualizado"
-  else
-    echo "✗ No se encontró $ruta_nvim/init.vim"
-  fi
+    print_message $BLUE "Actualizando configuración de Neovim (Linux)..."
+    local ruta_nvim="$HOME/.config/nvim/"
+    copy_file_with_validation "$ruta_nvim/init.vim" "./init.vim" "init.vim"
 }
 
 pullNvimWindows() {
-  echo "Actualizando configuración de Neovim (Windows)..."
+    print_message $BLUE "Actualizando configuración de Neovim (Windows)..."
 
-  while true; do
-    read -p "¿Cuál es tu nombre de usuario de Windows? " nombreUser
-    nombreUser=$(echo "$nombreUser" | xargs)
-    ruta_nvim="/mnt/c/Users/$nombreUser/AppData/Local/nvim"
-    if [ -d "$ruta_nvim" ]; then
-      break
-    else
-      echo "La carpeta $ruta_nvim no existe. Intenta de nuevo."
-    fi
-  done
+    local username=$(get_windows_username)
+    local ruta_nvim="/mnt/c/Users/$username/AppData/Local/nvim"
 
-  if [ -f "$ruta_nvim/init.vim" ]; then
-    cp "$ruta_nvim/init.vim" ./init.vim
-    echo "✓ init.vim actualizado"
-  else
-    echo "✗ No se encontró $ruta_nvim/init.vim"
-  fi
+    copy_file_with_validation "$ruta_nvim/init.vim" "./init.vim" "init.vim"
 }
 
 pullTmux() {
-  echo "Actualizando configuración de Tmux..."
-  if [ -f "$HOME/.tmux.conf" ]; then
-    cp "$HOME/.tmux.conf" ./.tmux.conf
-    echo "✓ .tmux.conf actualizado"
-  else
-    echo "✗ No se encontró $HOME/.tmux.conf"
-  fi
+    print_message $BLUE "Actualizando configuración de Tmux..."
+    copy_file_with_validation "$HOME/.tmux.conf" "./.tmux.conf" ".tmux.conf"
 }
 
 pullBash() {
-  echo "Actualizando configuración de Bash..."
-  if [ -f "$HOME/.bashrc" ]; then
-    cp "$HOME/.bashrc" ./.bashrc
-    echo "✓ .bashrc actualizado"
-  else
-    echo "✗ No se encontró $HOME/.bashrc"
-  fi
+    print_message $BLUE "Actualizando configuración de Bash..."
 
-  if [ -f "$HOME/.bash_aliases" ]; then
-    cp "$HOME/.bash_aliases" ./.bash_aliases
-    echo "✓ .bash_aliases actualizado"
-  else
-    echo "✗ No se encontró $HOME/.bash_aliases"
-  fi
+    local files_updated=0
+
+    if copy_file_with_validation "$HOME/.bashrc" "./.bashrc" ".bashrc"; then
+        ((files_updated++))
+    fi
+
+    if copy_file_with_validation "$HOME/.bash_aliases" "./.bash_aliases" ".bash_aliases"; then
+        ((files_updated++))
+    fi
+
+    if [ $files_updated -eq 0 ]; then
+        print_message $RED "No se pudo actualizar ningún archivo de configuración de Bash."
+        return 1
+    fi
+
+    print_message $GREEN "Configuración de Bash actualizada exitosamente."
 }
 
 pullWezterm() {
-  echo "Actualizando configuración de WezTerm..."
+    print_message $BLUE "Actualizando configuración de WezTerm..."
 
-  while true; do
-    read -p "¿Cuál es tu nombre de usuario de Windows? " nombreUser
-    nombreUser=$(echo "$nombreUser" | xargs)
-    destino="/mnt/c/Users/$nombreUser"
-    if [ -d "$destino" ]; then
-      break
-    else
-      echo "La carpeta $destino no existe. Intenta de nuevo."
-    fi
-  done
+    local username=$(get_windows_username)
+    local destino="/mnt/c/Users/$username"
 
-  if [ -f "$destino/.wezterm.lua" ]; then
-    cp "$destino/.wezterm.lua" ./.wezterm.lua
-    echo "✓ .wezterm.lua actualizado"
-  else
-    echo "✗ No se encontró $destino/.wezterm.lua"
-  fi
+    copy_file_with_validation "$destino/.wezterm.lua" "./.wezterm.lua" ".wezterm.lua"
 }
 
 pullPowerShell() {
-  echo "Actualizando configuración de PowerShell..."
+    print_message $BLUE "Actualizando configuración de PowerShell..."
 
-  while true; do
-    read -p "¿Cuál es tu nombre de usuario de Windows? " nombreUser
-    nombreUser=$(echo "$nombreUser" | xargs)
-    destino="/mnt/c/Users/$nombreUser/Documents/PowerShell"
-    if [ -d "$destino" ]; then
-      break
-    else
-      echo "La carpeta $destino no existe. Intenta de nuevo."
-    fi
-  done
+    local username=$(get_windows_username)
+    local destino="/mnt/c/Users/$username/Documents/PowerShell"
+    local file="Microsoft.PowerShell_profile.ps1"
 
-  local file="Microsoft.PowerShell_profile.ps1"
-  if [ -f "$destino/$file" ]; then
-    cp "$destino/$file" ./$file
-    echo "✓ $file actualizado"
-  else
-    echo "✗ No se encontró $destino/$file"
-  fi
+    copy_file_with_validation "$destino/$file" "./$file" "$file"
 }
 
 pullFish() {
-  echo "Actualizando configuración de Fish..."
-  local ruta_fish="$HOME/.config/fish/"
+    print_message $BLUE "Actualizando configuración de Fish..."
+    local ruta_fish="$HOME/.config/fish/"
 
-  if [ -f "$ruta_fish/conf.fish" ]; then
-    cp "$ruta_fish/conf.fish" ./conf.fish
-    echo "✓ conf.fish actualizado"
-  else
-    echo "✗ No se encontró $ruta_fish/conf.fish"
-  fi
+    copy_file_with_validation "$ruta_fish/conf.fish" "./conf.fish" "conf.fish"
 }
 
-pullAll() {
-  echo "Actualizando todas las configuraciones..."
-  pullVim
-  pullNvimLinux
-  pullTmux
-  pullBash
-  pullFish
-  echo "✓ Todas las configuraciones actualizadas"
+pullIntelJ() {
+    print_message $BLUE "Actualizando configuración de IntelJ..."
+
+    local username=$(get_windows_username)
+    local destino="/mnt/c/Users/$username"
+
+    copy_file_with_validation "$destino/.ideavimrc" "./.ideavimrc" ".ideavimrc"
 }
 
-# Función para configurar rutas personalizadas
-pullCustom() {
-  echo "Actualizando configuración personalizada..."
-  read -p "Ingresa la ruta del archivo de origen: " ruta_origen
-  read -p "Ingresa el nombre del archivo de destino en el repositorio: " archivo_destino
+pullCursor() {
+    print_message $BLUE "Actualizando configuración de Cursor..."
 
-  if [ -f "$ruta_origen" ]; then
-    cp "$ruta_origen" "./$archivo_destino"
-    echo "✓ $archivo_destino actualizado desde $ruta_origen"
-  else
-    echo "✗ No se encontró $ruta_origen"
-  fi
+    local username=$(get_windows_username)
+    local destino="/mnt/c/Users/$username"
+
+    # Cursor settings.json
+    local cursor_settings_path="$destino/AppData/Roaming/Cursor/User/settings.json"
+    local cursor_keybindings_path="$destino/AppData/Roaming/Cursor/User/keybindings.json"
+
+    local files_updated=0
+
+    if copy_file_with_validation "$cursor_settings_path" "./cursor_settings.json" "cursor_settings.json"; then
+        ((files_updated++))
+    fi
+
+    if copy_file_with_validation "$cursor_keybindings_path" "./cursor_keybindings.json" "cursor_keybindings.json"; then
+        ((files_updated++))
+    fi
+
+    if [ $files_updated -eq 0 ]; then
+        print_message $RED "No se pudo actualizar ningún archivo de configuración de Cursor."
+        return 1
+    fi
+
+    print_message $GREEN "Configuración de Cursor actualizada exitosamente."
+}
+
+# Función para mostrar el menú principal
+show_menu() {
+    echo -e "\n${BLUE}=== Script de Actualización de Configuraciones ==="
+    echo -e "${YELLOW}a)${NC} Vim"
+    echo -e "${YELLOW}b)${NC} Neovim (Linux)"
+    echo -e "${YELLOW}c)${NC} Neovim (Windows)"
+    echo -e "${YELLOW}d)${NC} Tmux"
+    echo -e "${YELLOW}e)${NC} Fish"
+    echo -e "${YELLOW}f)${NC} Bash"
+    echo -e "${YELLOW}g)${NC} WezTerm"
+    echo -e "${YELLOW}h)${NC} PowerShell"
+    echo -e "${YELLOW}i)${NC} IntelJ IDEA"
+    echo -e "${YELLOW}j)${NC} Cursor (Windows)"
+    echo -e "${YELLOW}q)${NC} Salir"
+    echo -e "${BLUE}===============================================${NC}"
+}
+
+# Función para procesar la opción seleccionada
+process_option() {
+    local option=$1
+
+    case "$option" in
+        a|A)
+            pullVim
+            ;;
+        b|B)
+            pullNvimLinux
+            ;;
+        c|C)
+            pullNvimWindows
+            ;;
+        d|D)
+            pullTmux
+            ;;
+        e|E)
+            pullFish
+            ;;
+        f|F)
+            pullBash
+            ;;
+        g|G)
+            pullWezterm
+            ;;
+        h|H)
+            pullPowerShell
+            ;;
+        i|I)
+            pullIntelJ
+            ;;
+        j|J)
+            pullCursor
+            ;;
+        q|Q)
+            print_message $GREEN "¡Hasta luego!"
+            exit 0
+            ;;
+        *)
+            print_message $RED "Opción inválida. Intenta de nuevo."
+            ;;
+    esac
+}
+
+# Función principal
+main() {
+    # Verificar que estamos en el directorio correcto
+    if [ ! -f ".vimrc" ] && [ ! -f "init.vim" ] && [ ! -f ".tmux.conf" ]; then
+        print_message $YELLOW "Advertencia: No se encontraron archivos de configuración en el directorio actual."
+        print_message $YELLOW "Este script actualizará los archivos del repositorio con la configuración local."
+    fi
+
+    while true; do
+        show_menu
+        read -p "Selecciona una opción: " opc
+
+        process_option "$opc"
+
+        echo
+        read -p "Presiona Enter para continuar..."
+    done
 }
 
 #-----------------------------------------
 # MAIN
 #-----------------------------------------
 
-echo -e "\n=== Script de Actualización de Configuraciones ==="
-echo -e "\n a: Vim\n b: Neovim Linux\n c: Neovim Windows\n d: Tmux\n e: Fish\n f: Bash\n g: WezTerm\n h: PowerShell\n i: Todas\n j: Personalizada"
-read -p "Opción: " opc
-
-case "$opc" in
-a)
-  pullVim
-  ;;
-b)
-  pullNvimLinux
-  ;;
-c)
-  pullNvimWindows
-  ;;
-d)
-  pullTmux
-  ;;
-e)
-  pullFish
-  ;;
-f)
-  pullBash
-  ;;
-g)
-  pullWezterm
-  ;;
-h)
-  pullPowerShell
-  ;;
-i)
-  pullAll
-  ;;
-j)
-  pullCustom
-  ;;
-*)
-  echo "Opción no válida"
-  ;;
-esac
-
-echo -e "\n=== Actualización completada ==="
+# Ejecutar el script principal
+main "$@"

@@ -1,55 +1,55 @@
-export PATH="$PATH:/opt/nvim-linux64/bin"
-
-# ejecutar tmux desde que se inicia la terminal
 # if [ -z "$TMUX" ]; then
 #   exec tmux
 # fi
 
-# Si no se ejecuta de forma interactiva, no haga nada.
+# Si no se está ejecutando de forma interactiva, no hacer nada
 case $- in
 *i*) ;;
 *) return ;;
 esac
 
-# No incluyas líneas duplicadas ni líneas que empiecen con un espacio en el historial.
+# no poner líneas duplicadas o líneas que empiecen con espacio en el historial.
+# Ver bash(1) para más opciones
 HISTCONTROL=ignoreboth
 
-# añadir al archivo de historial, no sobrescribirlo
+# agregar al archivo de historial, no sobrescribirlo
 shopt -s histappend
 
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+# para establecer la longitud del historial ver HISTSIZE y HISTFILESIZE en bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
 
-# Comprueba el tamaño de la ventana después de cada comando y, si es necesario, actualiza los valores de LINES y COLUMNS.
+# verificar el tamaño de la ventana después de cada comando y, si es necesario,
+# actualizar los valores de LINES y COLUMNS.
 shopt -s checkwinsize
 
-# Si se establece, el patrón «**» utilizado en un contexto de expansión de ruta coincidirá con todos los archivos y cero o más directorios y subdirectorios.
-shopt -s globstar
+# Si está configurado, el patrón "**" usado en un contexto de expansión de nombre de ruta
+# coincidirá con todos los archivos y cero o más directorios y subdirectorios.
+#shopt -s globstar
 
-# Hacer que less sea más fácil de usar para archivos de entrada que no son de texto
+# hacer less más amigable para archivos de entrada que no son texto, ver lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# Establecer la variable que identifica el chroot en el que se trabaja (utilizada en el indicador siguiente)
+# establecer variable que identifica el chroot en el que trabajas (usado en el prompt de abajo)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
   debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-# Establecer un indicador elegante (sin color, a menos que sepamos que «queremos» color).
+# establecer un prompt elegante (sin color, a menos que sepamos que "queremos" color)
 case "$TERM" in
 xterm-color | *-256color) color_prompt=yes ;;
 esac
 
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
+# descomentar para un prompt con color, si el terminal tiene la capacidad; desactivado
+# por defecto para no distraer al usuario: el enfoque en una ventana de terminal
+# debe estar en la salida de comandos, no en el prompt
 #force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
   if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-    # We have color support; assume it's compliant with Ecma-48
-    # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-    # a case would tend to support setf rather than setaf.)
+    # Tenemos soporte de color; asumimos que es compatible con Ecma-48
+    # (ISO/IEC-6429). (La falta de tal soporte es extremadamente rara, y tal
+    # caso tendería a soportar setf en lugar de setaf.)
     color_prompt=yes
   else
     color_prompt=
@@ -63,7 +63,7 @@ else
 fi
 unset color_prompt force_color_prompt
 
-# Si se trata de un xterm, establece el título como usuario@host:dir.
+# Si esto es un xterm establecer el título a usuario@host:dir
 case "$TERM" in
 xterm* | rxvt*)
   PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
@@ -71,7 +71,7 @@ xterm* | rxvt*)
 *) ;;
 esac
 
-# enable color support of ls and also add handy aliases
+# habilitar soporte de color de ls y también agregar alias útiles
 if [ -x /usr/bin/dircolors ]; then
   test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
   alias ls='ls --color=auto'
@@ -83,7 +83,7 @@ if [ -x /usr/bin/dircolors ]; then
   alias egrep='egrep --color=auto'
 fi
 
-# colored GCC warnings and errors
+# advertencias y errores de GCC con color
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # importando alias
@@ -91,6 +91,9 @@ if [ -f ~/.bash_aliases ]; then
   . ~/.bash_aliases
 fi
 
+# habilitar características de completado programable (no necesitas habilitar
+# esto, si ya está habilitado en /etc/bash.bashrc y /etc/profile
+# obtiene /etc/bash.bashrc).
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
@@ -100,13 +103,15 @@ if ! shopt -oq posix; then
 fi
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # Esto carga nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # Esto carga nvm bash_completion
 
 # configuracion para no usar ./archivo para ejecutar
 export PATH=$PATH:.
-# export PBASH=/mnt/c/Users/USUARIO/Documents/Bash/
 export EDITOR=vim
+
+# AJUSTAR NOMBRE DE USUARIO
+export PBASH=/mnt/c/Users/USUARIO/Documents/Bash/
 
 # configuracion para pegar en modo vi (p/P)
 # Pegar desde el portapapeles de Windows con "p" en modo normal
@@ -127,3 +132,5 @@ vi_insert_clipboard() {
 # Bind 'p' y 'P' en modo normal (vi)
 bind -m vi-command -x '"p": vi_append_clipboard'
 bind -m vi-command -x '"P": vi_insert_clipboard'
+
+# export PATH=$PATH:$(go env GOPATH)/bin

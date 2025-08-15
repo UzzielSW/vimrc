@@ -1,86 +1,130 @@
-# Documentación de primera configuración de Vim
+# Scripts de Configuración de Herramientas de Desarrollo
 
-Este documento proporciona una descripción general del archivo `.vimrc`, detallando su estructura y configuraciones principales.
+Este repositorio contiene dos scripts principales para gestionar configuraciones de herramientas de desarrollo de manera eficiente y organizada.
 
-## Tabla de Contenidos
-- [Documentación de primera configuración de Vim](#documentación-de-primera-configuración-de-vim)
-  - [Tabla de Contenidos](#tabla-de-contenidos)
-    - [1. Configuraciones Generales](#1-configuraciones-generales)
-    - [2. Configuraciones de Archivos](#2-configuraciones-de-archivos)
-    - [3. Configuraciones de Interfaz](#3-configuraciones-de-interfaz)
-    - [4. Mapeos y Funciones](#4-mapeos-y-funciones)
-    - [5. Plugins](#5-plugins)
-      - [Destacados de Configuración de Plugins:](#destacados-de-configuración-de-plugins)
-    - [6. Integración con Python](#6-integración-con-python)
-    - [7. Temas y Apariencia](#7-temas-y-apariencia)
+## 📁 Scripts Disponibles
+
+### 1. `push_config.sh` - Aplicar Configuraciones
+**Propósito**: Aplica las configuraciones del repositorio a tu sistema local.
+
+**Funcionalidades**:
+- ✅ Instala y configura Vim con Vim-Plug
+- ✅ Configura Neovim para Linux y Windows
+- ✅ Aplica configuraciones de Tmux
+- ✅ Configura Bash (.bashrc y .bash_aliases)
+- ✅ Aplica configuraciones de WezTerm
+- ✅ Configura PowerShell
+- ✅ Aplica configuraciones de Fish
+- ✅ Configura IntelJ IDEA
+- ✅ Aplica configuraciones de Cursor (settings.json y keybindings.json)
+- ✅ Opción para resetear configuración de Neovim
+
+### 2. `pull_config.sh` - Actualizar Repositorio
+**Propósito**: Actualiza los archivos del repositorio con las configuraciones locales modificadas.
+
+**Funcionalidades**:
+- ✅ Actualiza .vimrc desde configuración local
+- ✅ Actualiza init.vim de Neovim (Linux y Windows)
+- ✅ Actualiza .tmux.conf
+- ✅ Actualiza archivos de Bash (.bashrc y .bash_aliases)
+- ✅ Actualiza .wezterm.lua
+- ✅ Actualiza perfil de PowerShell
+- ✅ Actualiza conf.fish
+- ✅ Actualiza .ideavimrc de IntelJ
+- ✅ Actualiza configuración de Cursor (settings.json y keybindings.json)
+
+## 🚀 Características
+
+### ✨ Mejoras Visuales
+- **Colores**: Mensajes con códigos de color para mejor legibilidad
+- **Símbolos**: Uso de ✓ y ✗ para indicar éxito/error
+- **Menú estructurado**: Interfaz clara y fácil de usar
+
+### 🔧 Funcionalidades Técnicas
+- **Validación robusta**: Verificación de archivos y directorios
+- **Manejo de errores**: Mensajes informativos y manejo graceful de fallos
+- **Funciones auxiliares**: Código reutilizable y mantenible
+- **Compatibilidad**: Soporte para Linux y Windows (WSL)
+
+### 🛡️ Seguridad y Robustez
+- **Validación de entrada**: Verificación de nombres de usuario
+- **Creación de directorios**: Creación automática de directorios necesarios
+- **Verificación de dependencias**: Comprobación de herramientas requeridas
+
+## 📋 Requisitos
+
+### Para Linux:
+- Bash
+- curl (para descargar Vim-Plug)
+- Acceso a directorios de configuración
+
+### Para Windows (WSL):
+- WSL2 configurado
+- PowerShell (para Neovim Windows)
+- Acceso a directorios de Windows
+
+## 🎯 Uso
+
+### Aplicar Configuraciones (push_config.sh)
+```bash
+./push_config.sh
+```
+
+### Actualizar Repositorio (pull_config.sh)
+```bash
+./pull_config.sh
+```
+
+## 🔄 Flujo de Trabajo Recomendado
+
+1. **Configuración inicial**: Usa `push_config.sh` para aplicar configuraciones base
+2. **Desarrollo**: Modifica configuraciones según tus necesidades
+3. **Actualización**: Usa `pull_config.sh` para sincronizar cambios al repositorio
+4. **Compartir**: Commit y push de los cambios al repositorio
+5. **Repetir**: El ciclo continúa según sea necesario
+
+## 📝 Estructura del Repositorio
+
+```
+vimrc/
+├── .vimrc                    # Configuración de Vim
+├── init.vim                  # Configuración de Neovim
+├── .tmux.conf               # Configuración de Tmux
+├── .bashrc                  # Configuración de Bash
+├── .bash_aliases            # Alias de Bash
+├── .wezterm.lua             # Configuración de WezTerm
+├── Microsoft.PowerShell_profile.ps1  # Perfil de PowerShell
+├── conf.fish                # Configuración de Fish
+├── .ideavimrc               # Configuración de IntelJ IDEA
+├── cursor_settings.json     # Configuración de Cursor (settings)
+├── cursor_keybindings.json # Configuración de Cursor (keybindings)
+├── push_config.sh           # Script para aplicar configuraciones
+├── pull_config.sh           # Script para actualizar repositorio
+└── README.md                # Este archivo
+```
+
+## 🎨 Personalización
+
+Ambos scripts están diseñados para ser fácilmente personalizables:
+
+- **Agregar nuevas herramientas**: Simplemente crea nuevas funciones siguiendo el patrón existente
+- **Modificar colores**: Cambia las variables de color al inicio de cada script
+- **Agregar validaciones**: Extiende las funciones de validación según necesidades
+
+## 🤝 Contribuciones
+
+Las mejoras y sugerencias son bienvenidas. Por favor:
+
+1. Mantén la consistencia con el estilo de código existente
+2. Prueba los cambios antes de hacer commit
+3. Documenta nuevas funcionalidades
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia MIT. Ver archivo LICENSE para más detalles.
 
 ---
 
-### 1. Configuraciones Generales
-Estas configuraciones ajustan el comportamiento general de Vim:
-- `set hidden`: Permite cambiar entre buffers sin guardar.
-- `set nocompatible`: Desactiva la compatibilidad con versiones antiguas de Vi.
-- `syntax on`: Activa el resaltado de sintaxis.
-- `set clipboard=unnamed`: Usa el portapapeles del sistema para copiar y pegar.
-- `set autoread`: Recarga automáticamente archivos modificados fuera de Vim.
-- `set cul`: Resalta la línea actual.
-- `set rs`: Activa el soporte de regla.
-
----
-
-### 2. Configuraciones de Archivos
-Estas configuraciones controlan el manejo de archivos e indentación:
-- `set nobackup`, `set nowritebackup`, `set noswapfile`: Desactiva archivos de respaldo y swap.
-- `set autoindent`, `set smartindent`: Activa la indentación automática e inteligente.
-- `set sw=2`, `set softtabstop=2`, `set tabstop=2`: Configura el ancho de tabulación a 2 espacios.
-- `set encoding=utf-8`: Establece la codificación de archivos en UTF-8.
-- `set scrolloff=8`: Mantiene un margen de 8 líneas al hacer scroll.
-- `set ff=unix`: Establece el formato de archivo a Unix.
-
----
-
-### 3. Configuraciones de Interfaz
-Estas configuraciones mejoran la interfaz de usuario:
-- `set number`, `set relativenumber`: Muestra números de línea absolutos y relativos.
-- `set nohlsearch`: Desactiva el resaltado de búsqueda.
-- `set showmatch`: Resalta paréntesis coincidentes.
-- `set wildmenu`: Activa el autocompletado en la línea de comandos.
-- `set laststatus=2`: Siempre muestra la barra de estado.
-
----
-
-### 4. Mapeos y Funciones
-Mapeos personalizados para mejorar la navegación y funcionalidad:
-- Navegación entre splits: `<C-h>`, `<C-j>`, `<C-k>`, `<C-l>`.
-- Redimensionar splits: `<C-w>>`, `<C-w><`, `<C-w>+`, `<C-w>-`.
-- Navegación entre buffers: `L` (siguiente), `H` (anterior).
-- Centrado en búsquedas: `n`, `N`, `*` mantienen el cursor centrado.
-- Tecla líder: `,` (usada para comandos personalizados como guardar, salir, etc.).
-
----
-
-### 5. Plugins
-Los plugins se gestionan con `vim-plug`. Plugins clave incluyen:
-- **Navegación**: `vim-easymotion`, `NERDTree`.
-- **Edición**: `vim-commentary`, `vim-visual-multi`, `vim-auto-save`.
-- **Apariencia**: `lanox-vim-theme`, `vim-airline`, `vim-devicons`.
-- **Soporte de Lenguajes**: `python-syntax`, `java-syntax.vim`.
-
-#### Destacados de Configuración de Plugins:
-- **NERDTree**: Alternar con `<Leader>nt`, encontrar archivo actual con `<Leader>nf`.
-- **EasyMotion**: Mapeos personalizados para navegación rápida.
-- **Auto Save**: Guarda automáticamente los archivos en eventos específicos.
-
----
-
-### 6. Integración con Python
-- Los plugins de Python requieren `pynvim`. Configura la ruta al ejecutable de Python:
-  ```viml
-  let g:python3_host_prog='C:/Users/USUARIO/.venv/Scripts/python.exe'
-  ```
-
----
-
-### 7. Temas y Apariencia
-- **Tema**: `lanox` con fondo oscuro.
-- **Airline**: Configurado con el tema `simple` y tabline habilitado.
+**Autor**: Uzziel Puyol
+**Versión**: 1.0
+**Última actualización**: agosto2025
