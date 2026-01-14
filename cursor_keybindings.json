@@ -12,9 +12,14 @@
     "when": "editorFocus && neovim.init"
   },
   {
-    "args": "<C-p>",
+    "args": "<C-a>",
     "command": "vscode-neovim.send",
-    "key": "ctrl+p",
+    "key": "ctrl+a",
     "when": "editorFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+b",
+    "command": "-vscode-neovim.ctrl-b",
+    "when": "editorTextFocus && neovim.ctrlKeysNormal.b && neovim.init && neovim.mode != 'insert' && editorLangId not in 'neovim.editorLangIdExclusions'"
   }
 ]

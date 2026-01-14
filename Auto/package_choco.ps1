@@ -13,7 +13,7 @@ if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
     Set-ExecutionPolicy Bypass -Scope Process -Force
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
     iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-    
+
     if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
         Write-Host "❌ Error: No se pudo instalar Chocolatey. Saliendo..." -ForegroundColor Red
         exit 1
@@ -33,6 +33,7 @@ $paquetes = @(
     @{nombre="pandoc"; descripcion="Conversor universal de documentos"},
     @{nombre="plantuml"; descripcion="Herramienta para crear diagramas UML"},
     @{nombre="ripgrep"; descripcion="Herramienta de búsqueda rápida en archivos"},
+    @{nombre="mingw"; descripcion="Compilador GCC para Windows"}
 )
 
 # Contador para mostrar progreso
@@ -41,11 +42,11 @@ $total = $paquetes.Count
 
 foreach ($paquete in $paquetes) {
     Write-Host "[$contador/$total] Instalando $($paquete.descripcion)..." -ForegroundColor Cyan
-    
+
     try {
         # Instalar el paquete
         choco install $paquete.nombre -y --no-progress
-        
+
         if ($LASTEXITCODE -eq 0) {
             Write-Host "    ✅ $($paquete.nombre) instalado correctamente" -ForegroundColor Green
         } else {
@@ -55,7 +56,7 @@ foreach ($paquete in $paquetes) {
     catch {
         Write-Host "    ❌ Error instalando $($paquete.nombre): $($_.Exception.Message)" -ForegroundColor Red
     }
-    
+
     $contador++
     Write-Host ""
 }
@@ -67,7 +68,7 @@ Write-Host ""
 
 # Mostrar resumen de paquetes instalados
 Write-Host "📋 Resumen de paquetes instalados:" -ForegroundColor Magenta
-choco list --local-only | Where-Object { $_ -match "^(graphviz|pandoc|plantuml|ripgrep)" }
+choco list --local-only | Where-Object { $_ -match "^(graphviz|pandoc|plantuml|ripgrep|mingw)" }
 
 Write-Host ""
 Write-Host "🎉 ¡Script completado!" -ForegroundColor Green

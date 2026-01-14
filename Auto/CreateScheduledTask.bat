@@ -4,7 +4,7 @@ REM Modify the variables below according to your needs
 
 REM Task Configuration
 set TASK_NAME=FileCheckTask
-set SCRIPT_PATH=C:\Users\USUARIO\FileCheckTask.ps1
+set SCRIPT_PATH=C:\Users\braya\Auto\FileCheckTask.ps1
 set SCHEDULE_TIME=21:50
 set SCHEDULE_FREQUENCY=DAILY
 

@@ -129,15 +129,14 @@ pullPowerShell() {
     print_message $BLUE "Actualizando configuración de PowerShell..."
 
     local username=$(get_windows_username)
-    local destino="/mnt/c/Users/$username/Documents/PowerShell"
+    local destino="/mnt/c/Users/$username/OneDrive/Documentos/PowerShell"
     local file="Microsoft.PowerShell_profile.ps1"
-
     copy_file_with_validation "$destino/$file" "./$file" "$file"
 }
 
 pullFish() {
     print_message $BLUE "Actualizando configuración de Fish..."
-    local ruta_fish="$HOME/.config/fish/"
+    local ruta_fish="$HOME/.config/fish"
 
     copy_file_with_validation "$ruta_fish/conf.fish" "./conf.fish" "conf.fish"
 }
@@ -179,6 +178,27 @@ pullCursor() {
     print_message $GREEN "Configuración de Cursor actualizada exitosamente."
 }
 
+pullAll() {
+    print_message $BLUE "Actualizando todas las configuraciones..."
+    local failed=0
+    local failures=()
+
+    for func in pullVim pullNvimLinux pullNvimWindows pullTmux pullFish pullBash pullWezterm pullPowerShell pullIntelJ pullCursor; do
+        if ! "$func"; then
+            failures+=("$func")
+            ((failed++))
+        fi
+    done
+
+    if [ $failed -eq 0 ]; then
+        print_message $GREEN "Todas las configuraciones se actualizaron correctamente. ✅"
+        return 0
+    else
+        print_message $RED "Algunas actualizaciones fallaron ($failed). Funciones con errores: ${failures[*]}"
+        return 1
+    fi
+}
+
 # Función para mostrar el menú principal
 show_menu() {
     echo -e "\n${BLUE}=== Script de Actualización de Configuraciones ==="
@@ -192,9 +212,10 @@ show_menu() {
     echo -e "${YELLOW}h)${NC} PowerShell"
     echo -e "${YELLOW}i)${NC} IntelJ IDEA"
     echo -e "${YELLOW}j)${NC} Cursor (Windows)"
+    echo -e "${YELLOW}k)${NC} Todos (Traer todo)"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
-}
+} 
 
 # Función para procesar la opción seleccionada
 process_option() {
@@ -230,6 +251,9 @@ process_option() {
             ;;
         j|J)
             pullCursor
+            ;;
+        k|K)
+            pullAll
             ;;
         q|Q)
             print_message $GREEN "¡Hasta luego!"

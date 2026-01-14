@@ -44,8 +44,10 @@ nnoremap * *zzzv
 let mapleader = ","
 imap jk <ESC>
 nnoremap <C-y> gg0vG$y
+nnoremap <C-a> gg0vG$
 nnoremap <C-t> :tabnew <CR>
-nnoremap X :%s/.*\n//g <CR>
+nnoremap <C-f> /!  <CR>
+nnoremap X :%s/.*\n//g <CR>;<C-f>
 nnoremap F :%s/\n/ /g <CR>
 nmap E o<ESC>
 nmap S :%s/ /g
@@ -55,7 +57,6 @@ nnoremap yw yiw
 nnoremap dw diw
 nnoremap cw ciw
 nnoremap W :w <CR>
-nnoremap <C-f> /!  <CR>
 vnoremap R y:let @/ = '\V' . escape(@", '\/')<CR>:%s///g<Left><Left>
 inoremap <C-p> <C-o>]p
 inoremap <C-j> <C-o>o

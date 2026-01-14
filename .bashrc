@@ -134,3 +134,8 @@ bind -m vi-command -x '"p": vi_append_clipboard'
 bind -m vi-command -x '"P": vi_insert_clipboard'
 
 # export PATH=$PATH:$(go env GOPATH)/bin
+
+# Homebrew Configuration
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+. "$HOME/.cargo/env"
+export PATH="$HOME/.cargo/bin:$PATH"

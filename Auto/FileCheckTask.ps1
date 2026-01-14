@@ -2,13 +2,13 @@
 # This script checks if a file exists and creates it if it doesn't
 
 # Configuration - Modify these variables as needed
-$FilePath = "C:\Users\USUARIO\Videos\edit.md"
+$FilePath = "C:\Users\braya\Videos\edit.md"
 $FileContent = @"
 This file was created automatically on $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 "@
 
 # Log file path (optional - for tracking script execution)
-$LogPath = "C:\Users\USUARIO\FileCheckTask.log"
+$LogPath = "C:\Users\braya\FileCheckTask.log"
 
 try {
     # Write to log (optional)

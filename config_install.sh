@@ -223,7 +223,6 @@ install_additional_tools() {
             "jq"
             "yq"
             "bat"
-            "exa"
             "tldr"
         )
 
