@@ -159,6 +159,7 @@ pullCursor() {
     # Cursor settings.json
     local cursor_settings_path="$destino/AppData/Roaming/Cursor/User/settings.json"
     local cursor_keybindings_path="$destino/AppData/Roaming/Cursor/User/keybindings.json"
+		local cursor_profile_path="$destino/Videos/cursor.code-profile"
 
     local files_updated=0
 
@@ -169,6 +170,11 @@ pullCursor() {
     if copy_file_with_validation "$cursor_keybindings_path" "./cursor_keybindings.json" "cursor_keybindings.json"; then
         ((files_updated++))
     fi
+
+
+		if copy_file_with_validation "$cursor_profile_path" "./cursor.code-profile" "cursor.code-profile"; then
+				((files_updated++))
+		fi
 
     if [ $files_updated -eq 0 ]; then
         print_message $RED "No se pudo actualizar ningún archivo de configuración de Cursor."
@@ -215,7 +221,7 @@ show_menu() {
     echo -e "${YELLOW}k)${NC} Todos (Traer todo)"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
-} 
+}
 
 # Función para procesar la opción seleccionada
 process_option() {

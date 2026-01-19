@@ -269,10 +269,20 @@ confCursor() {
     local cursor_dest_dir="$destino_base/AppData/Roaming/Cursor/User"
     local cursor_settings_dest="$cursor_dest_dir/settings.json"
     local cursor_keybindings_dest="$cursor_dest_dir/keybindings.json"
+    local cursor_profile_repo="cursor.code-profile"
+    local cursor_profile_dest="$destino_base/Videos/cursor.code-profile"
 
     if [ ! -d "$cursor_dest_dir" ]; then
         print_message $YELLOW "Creando directorio $cursor_dest_dir..."
         mkdir -p "$cursor_dest_dir"
+    fi
+
+    # Asegurar directorio destino del profile (Videos) si aplica
+    local cursor_profile_dest_dir
+    cursor_profile_dest_dir=$(dirname "$cursor_profile_dest")
+    if [ ! -d "$cursor_profile_dest_dir" ]; then
+        print_message $YELLOW "Creando directorio $cursor_profile_dest_dir..."
+        mkdir -p "$cursor_profile_dest_dir"
     fi
 
     local files_copied=0
@@ -285,12 +295,38 @@ confCursor() {
         ((files_copied++))
     fi
 
+    if copy_file_with_validation "$cursor_profile_repo" "$cursor_profile_dest" "Configuración de Cursor (cursor.code-profile)"; then
+        ((files_copied++))
+    fi
+
     if [ $files_copied -eq 0 ]; then
         print_message $RED "No se pudo aplicar ninguna configuración de Cursor."
         return 1
     fi
 
     print_message $GREEN "Configuración de Cursor aplicada exitosamente."
+}
+
+confAll() {
+    print_message $BLUE "Configurando todas las herramientas..."
+    local failed=0
+    local failures=()
+
+    # Mantener paridad con pull: solo los targets que pull soporta
+    for func in confVim confNvimLinux confNvimWindows confTmux confFish confBash confWezterm confPowerShell confIntelJ confCursor; do
+        if ! "$func"; then
+            failures+=("$func")
+            ((failed++))
+        fi
+    done
+
+    if [ $failed -eq 0 ]; then
+        print_message $GREEN "Todas las configuraciones se aplicaron correctamente. ✅"
+        return 0
+    else
+        print_message $RED "Algunas configuraciones fallaron ($failed). Funciones con errores: ${failures[*]}"
+        return 1
+    fi
 }
 
 confAuto() {
@@ -358,6 +394,7 @@ show_menu() {
     echo -e "${YELLOW}j)${NC} Cursor (Windows)"
     echo -e "${YELLOW}k)${NC} Auto (Scripts de Automatización)"
     echo -e "${YELLOW}l)${NC} Reset Neovim"
+    echo -e "${YELLOW}m)${NC} Todos (Configurar todo)"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
 }
@@ -414,6 +451,9 @@ main() {
                 ;;
             l|L)
                 resetConfigNvim
+                ;;
+            m|M)
+                confAll
                 ;;
             q|Q)
                 print_message $GREEN "¡Hasta luego!"
