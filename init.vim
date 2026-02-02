@@ -14,6 +14,7 @@ set shellcmdflag=-NoLogo\ -ExecutionPolicy\ Bypass\ -Command
 set shellquote=""
 set shellxquote=""
 set clipboard=unnamed " use el portapapeles del sistema para copiar y pegar texto.
+set guicursor="all:block"
 "-----------------------------------------
 " 2. FILE SETTINGS
 "-----------------------------------------
@@ -146,6 +147,7 @@ if !exists('g:vscode')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   Plug 'folke/which-key.nvim'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+	Plug 'sphamba/smear-cursor.nvim'
   Plug 'lanox/lanox-vim-theme'
   Plug 'ryanoasis/vim-devicons'
   Plug 'lukas-reineke/indent-blankline.nvim'
@@ -181,7 +183,6 @@ map <Leader>k <Plug>(easymotion-k)
 map <Leader>h <Plug>(easymotion-linebackward)
 
 let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
-
 
 "-------------------------------------------------------------------------NO VSCODE CONFIG--------------------------------------------------------------------------
 if exists('g:vscode')
@@ -257,8 +258,34 @@ let g:python3_host_prog='C:/Users/USUARIO/.venv/Scripts/python.exe'
 
 "-------------------------------------------------------------------------CONFIG LUA--------------------------------------------------------------------------------
 lua<<EOF
+--------------------------------------smear-cursor---------------------------------------
+require ("smear_cursor").setup({
+	smear_between_buffers = true,
+	smear_between_neighbor_lines = true,
+	scroll_buffer_space = true,
+	legacy_computing_symbols_support = true,
+  cursor_color = "#ff4000",
+	particles_enabled = true,
+	stiffness = 0.5,
+	trailing_stiffness = 0.2,
+	trailing_exponent = 5,
+	damping = 0.6,
+	gradient_exponent = 0,
+	gamma = 1,
+	particle_spread = 1,
+	particles_per_second = 500,
+	particles_per_length = 50,
+	particle_max_num = 300,
+	particle_max_lifetime = 800,
+	particle_max_initial_velocity = 20,
+	particle_velocity_from_cursor = 0.5,
+	particle_damping = 0.15,
+	particle_gravity = -50,
+	min_distance_emit_particles = 0,
+})
+
 --------------------------------------treesitter---------------------------------------
-require'nvim-treesitter.configs'.setup {
+require'nvim-treesitter'.setup {
   -- A list of parser names, or "all" (the listed parsers MUST always be installed)
   ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "sql", "python", "bash", "json", "javascript"},
 
@@ -315,6 +342,7 @@ require'nvim-treesitter.configs'.setup {
   end)
 
   require("ibl").setup { indent = { highlight = highlight } }
+
 EOF
 "-------------------------------------------------------------------------CONFIG LUA--------------------------------------------------------------------------------
 
@@ -342,7 +370,7 @@ let g:airline_right_sep = "\uE0b2"
 let g:airline_section_z = airline#section#create(["\uE0A1" . '%{line(".")}' . "\uE0A3" . '%{col(".")}'])
 
 "--------------------------COC-------------------------------------
-set encoding=utf-8
+set encoding=UTF-8
 " Some servers have issues with backup files, see #649
 set nobackup
 set nowritebackup

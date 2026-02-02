@@ -195,19 +195,6 @@ confBash() {
     print_message $GREEN "Configuración de Bash completada."
 }
 
-confWezterm() {
-    print_message $BLUE "Configurando WezTerm..."
-
-    local username=$(get_windows_username)
-    local destino="/mnt/c/Users/$username"
-
-    if copy_file_with_validation ".wezterm.lua" "$destino/.wezterm.lua" "Configuración de WezTerm"; then
-        print_message $GREEN "Configuración de WezTerm aplicada exitosamente."
-    else
-        return 1
-    fi
-}
-
 confPowerShell() {
     print_message $BLUE "Configurando PowerShell..."
 
@@ -313,7 +300,7 @@ confAll() {
     local failures=()
 
     # Mantener paridad con pull: solo los targets que pull soporta
-    for func in confVim confNvimLinux confNvimWindows confTmux confFish confBash confWezterm confPowerShell confIntelJ confCursor; do
+    for func in confVim confNvimLinux confNvimWindows confTmux confFish confBash confPowerShell confIntelJ confCursor; do
         if ! "$func"; then
             failures+=("$func")
             ((failed++))
@@ -388,13 +375,12 @@ show_menu() {
     echo -e "${YELLOW}d)${NC} Tmux"
     echo -e "${YELLOW}e)${NC} Fish"
     echo -e "${YELLOW}f)${NC} Bash"
-    echo -e "${YELLOW}g)${NC} WezTerm"
-    echo -e "${YELLOW}h)${NC} PowerShell"
-    echo -e "${YELLOW}i)${NC} IntelJ IDEA"
-    echo -e "${YELLOW}j)${NC} Cursor (Windows)"
-    echo -e "${YELLOW}k)${NC} Auto (Scripts de Automatización)"
-    echo -e "${YELLOW}l)${NC} Reset Neovim"
-    echo -e "${YELLOW}m)${NC} Todos (Configurar todo)"
+    echo -e "${YELLOW}g)${NC} PowerShell"
+    echo -e "${YELLOW}h)${NC} IntelJ IDEA"
+    echo -e "${YELLOW}i)${NC} Cursor (Windows)"
+    echo -e "${YELLOW}j)${NC} Auto (Scripts de Automatización)"
+    echo -e "${YELLOW}k)${NC} Reset Neovim"
+    echo -e "${YELLOW}l)${NC} Todos (Configurar todo)"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
 }
@@ -435,24 +421,21 @@ main() {
                 confBash
                 ;;
             g|G)
-                confWezterm
-                ;;
-            h|H)
                 confPowerShell
                 ;;
-            i|I)
+            h|H)
                 confIntelJ
                 ;;
-            j|J)
+            i|I)
                 confCursor
                 ;;
-            k|K)
+            j|J)
                 confAuto
                 ;;
-            l|L)
+            k|K)
                 resetConfigNvim
                 ;;
-            m|M)
+            l|L)
                 confAll
                 ;;
             q|Q)

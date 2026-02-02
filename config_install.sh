@@ -215,15 +215,17 @@ install_additional_tools() {
     print_section "INSTALANDO HERRAMIENTAS ADICIONALES"
 
     if confirm_install "herramientas adicionales de desarrollo"; then
+
+
         local additional_packages=(
-            "docker.io"
-            "docker-compose"
+            "docker.io" # Docker es un contenedor de software que permite a los desarrolladores crear, distribuir y ejecutar aplicaciones en contenedores.
+            "docker-compose" # Docker Compose es una herramienta para definir y ejecutar aplicaciones Docker de múltiples contenedores.
             "postgresql-client"
             "redis-tools"
-            "jq"
-            "yq"
-            "bat"
-            "tldr"
+            "jq" # JSON processor. Permite filtrar, transformar y manipular JSON.
+            "yq" # YAML processor. Permite filtrar, transformar y manipular YAML.
+            "bat" # Cat clone. Permite ver archivos de forma mas legible.
+            "tldr" # Manual de comandos. Permite ver la documentación de los comandos de forma mas legible.
         )
 
         print_message $BLUE "Instalando herramientas adicionales..."
@@ -241,7 +243,6 @@ setup_dev_directories() {
 
     local dev_dirs=(
         "$HOME_DIR/Projects"
-        "$HOME_DIR/Downloads"
         "$HOME_DIR/Documents"
         "$HOME_DIR/.config"
     )

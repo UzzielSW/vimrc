@@ -116,15 +116,6 @@ pullBash() {
     print_message $GREEN "Configuración de Bash actualizada exitosamente."
 }
 
-pullWezterm() {
-    print_message $BLUE "Actualizando configuración de WezTerm..."
-
-    local username=$(get_windows_username)
-    local destino="/mnt/c/Users/$username"
-
-    copy_file_with_validation "$destino/.wezterm.lua" "./.wezterm.lua" ".wezterm.lua"
-}
-
 pullPowerShell() {
     print_message $BLUE "Actualizando configuración de PowerShell..."
 
@@ -189,7 +180,7 @@ pullAll() {
     local failed=0
     local failures=()
 
-    for func in pullVim pullNvimLinux pullNvimWindows pullTmux pullFish pullBash pullWezterm pullPowerShell pullIntelJ pullCursor; do
+    for func in pullVim pullNvimLinux pullNvimWindows pullTmux pullFish pullBash pullPowerShell pullIntelJ pullCursor; do
         if ! "$func"; then
             failures+=("$func")
             ((failed++))
@@ -214,11 +205,10 @@ show_menu() {
     echo -e "${YELLOW}d)${NC} Tmux"
     echo -e "${YELLOW}e)${NC} Fish"
     echo -e "${YELLOW}f)${NC} Bash"
-    echo -e "${YELLOW}g)${NC} WezTerm"
-    echo -e "${YELLOW}h)${NC} PowerShell"
-    echo -e "${YELLOW}i)${NC} IntelJ IDEA"
-    echo -e "${YELLOW}j)${NC} Cursor (Windows)"
-    echo -e "${YELLOW}k)${NC} Todos (Traer todo)"
+    echo -e "${YELLOW}g)${NC} PowerShell"
+    echo -e "${YELLOW}h)${NC} IntelJ IDEA"
+    echo -e "${YELLOW}i)${NC} Cursor (Windows)"
+    echo -e "${YELLOW}j)${NC} Todos (Traer todo)"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
 }
@@ -247,18 +237,15 @@ process_option() {
             pullBash
             ;;
         g|G)
-            pullWezterm
-            ;;
-        h|H)
             pullPowerShell
             ;;
-        i|I)
+        h|H)
             pullIntelJ
             ;;
-        j|J)
+        i|I)
             pullCursor
             ;;
-        k|K)
+        j|J)
             pullAll
             ;;
         q|Q)
