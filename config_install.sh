@@ -80,6 +80,7 @@ install_basic_packages() {
         "fzf"
         "ripgrep"
         "fd-find"
+        "zathura"
     )
 
     print_message $BLUE "Instalando paquetes básicos..."
@@ -178,6 +179,57 @@ setup_java() {
     fi
 }
 
+# Función para instalar Fish, Oh My Fish y plugin pj
+setup_fish() {
+    print_section "INSTALANDO FISH SHELL Y OH MY FISH"
+
+    if confirm_install "Fish shell con Oh My Fish y plugin pj"; then
+        print_message $BLUE "Instalando Fish..."
+        sudo apt install -y fish
+
+        print_message $BLUE "Instalando Oh My Fish (modo no interactivo, sin abrir Fish)..."
+        local omf_install
+        omf_install=$(mktemp)
+        curl -sL -o "$omf_install" https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install
+        fish "$omf_install" --noninteractive --yes
+        rm -f "$omf_install"
+
+        print_message $BLUE "Instalando plugin pj..."
+        fish -c "omf install pj"
+
+        print_message $GREEN "✓ Fish shell con Oh My Fish y plugin pj instalados correctamente"
+    else
+        print_message $YELLOW "Instalación de Fish omitida"
+    fi
+}
+
+# Función para instalar Lazygit
+install_lazygit() {
+    print_section "INSTALANDO LAZYGIT"
+
+    if confirm_install "Lazygit (cliente TUI para Git)"; then
+        print_message $BLUE "Descargando Lazygit..."
+
+        local tmp_lazygit=$(mktemp -d)
+        local lazygit_version
+        lazygit_version=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep '"tag_name"' | sed -n 's/.*"v\([^"]*\)".*/\1/p')
+
+        if [ -z "$lazygit_version" ]; then
+            print_message $RED "✗ No se pudo obtener la versión de Lazygit"
+            return 1
+        fi
+
+        curl -sLo "$tmp_lazygit/lazygit.tar.gz" "https://github.com/jesseduffield/lazygit/releases/download/v${lazygit_version}/lazygit_${lazygit_version}_Linux_x86_64.tar.gz"
+        tar -xzf "$tmp_lazygit/lazygit.tar.gz" -C "$tmp_lazygit" lazygit
+        sudo install "$tmp_lazygit/lazygit" -D -t /usr/local/bin/
+        rm -rf "$tmp_lazygit"
+
+        print_message $GREEN "✓ Lazygit instalado correctamente"
+    else
+        print_message $YELLOW "Instalación de Lazygit omitida"
+    fi
+}
+
 # Función para instalar Homebrew
 setup_homebrew() {
     print_section "INSTALANDO HOMEBREW"
@@ -231,6 +283,13 @@ install_additional_tools() {
         print_message $BLUE "Instalando herramientas adicionales..."
         sudo apt install -y "${additional_packages[@]}"
 
+        # Añadir usuario al grupo docker (Ubuntu) para usar Docker sin sudo
+        if dpkg -l docker.io &>/dev/null; then
+            sudo usermod -aG docker "$USERNAME"
+            print_message $GREEN "✓ Usuario $USERNAME añadido al grupo docker"
+            print_message $YELLOW "Para aplicar cambios de Docker: newgrp docker (o cierra sesión y vuelve a entrar)"
+        fi
+
         print_message $GREEN "✓ Herramientas adicionales instaladas correctamente"
     else
         print_message $YELLOW "Instalación de herramientas adicionales omitida"
@@ -257,23 +316,47 @@ setup_dev_directories() {
     done
 }
 
+# Función para limpieza final del sistema
+cleanup_system() {
+    print_section "LIMPIEZA FINAL"
+
+    print_message $BLUE "Limpiando caché de paquetes..."
+    sudo apt clean
+
+    print_message $BLUE "Eliminando paquetes no utilizados..."
+    sudo apt autoremove -y
+
+    print_message $GREEN "✓ Limpieza completada"
+}
+
 # Función para mostrar resumen de la instalación
 show_summary() {
     print_section "RESUMEN DE LA INSTALACIÓN"
 
-    echo -e "${GREEN}Configuración completada exitosamente!${NC}"
+    echo -e "${GREEN}===============================================================${NC}"
+    echo -e "${GREEN}          CONFIGURACIÓN DE UBUNTU COMPLETADA                    ${NC}"
+    echo -e "${GREEN}===============================================================${NC}"
+    echo
+    echo -e "${CYAN}Herramientas configuradas / instaladas:${NC}"
+    echo "  - Sistema actualizado"
+    echo "  - Paquetes básicos (build-essential, curl, wget, git, vim, htop, tree, fzf, ripgrep, fd-find, zathura)"
+    echo "  - Git (si aceptaste)"
+    echo "  - NVM y Node.js (si aceptaste)"
+    echo "  - Java JDK (si aceptaste)"
+    echo "  - Fish shell, Oh My Fish y plugin pj (si aceptaste)"
+    echo "  - Lazygit (si aceptaste)"
+    echo "  - Homebrew y Neovim (si aceptaste)"
+    echo "  - Herramientas adicionales: Docker, postgresql-client, redis-tools, jq, yq, bat, tldr (si aceptaste)"
+    echo "  - Directorios de desarrollo"
+    echo "  - Limpieza de caché y paquetes no utilizados"
     echo
     echo -e "${YELLOW}Próximos pasos recomendados:${NC}"
     echo "1. Reinicia tu terminal o ejecuta: source ~/.bashrc"
-    echo "2. Verifica las instalaciones con:"
-    echo "   - node --version"
-    echo "   - java -version"
-    echo "   - brew --version"
-    echo "   - nvim --version"
-    echo "3. Configura tu editor preferido"
-    echo "4. Instala plugins y extensiones necesarias"
+    echo "2. Si instalaste Docker: ejecuta \`newgrp docker\` para usar Docker sin sudo"
+    echo "3. Verifica instalaciones: node --version, java -version, brew --version, nvim --version, lazygit --version"
     echo
-    echo -e "${BLUE}¡Tu entorno de desarrollo está listo!${NC}"
+    echo -e "${BLUE}¡Tu entorno de desarrollo en Ubuntu está listo!${NC}"
+    echo -e "${GREEN}===============================================================${NC}"
 }
 
 # Función principal
@@ -299,9 +382,12 @@ main() {
     setup_git
     setup_nvm
     setup_java
+    setup_fish
+    install_lazygit
     setup_homebrew
     install_additional_tools
     setup_dev_directories
+    cleanup_system
 
     show_summary
 }

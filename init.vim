@@ -263,6 +263,7 @@ require ("smear_cursor").setup({
 	smear_between_buffers = true,
 	smear_between_neighbor_lines = true,
 	scroll_buffer_space = true,
+	transparent_bg_fallback_color = "#303030",
 	legacy_computing_symbols_support = true,
   cursor_color = "#ff4000",
 	particles_enabled = true,
@@ -282,6 +283,8 @@ require ("smear_cursor").setup({
 	particle_damping = 0.15,
 	particle_gravity = -50,
 	min_distance_emit_particles = 0,
+	hide_target_hack = true,
+	never_draw_over_target = true,
 })
 
 --------------------------------------treesitter---------------------------------------
