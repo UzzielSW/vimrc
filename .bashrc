@@ -2,6 +2,46 @@
 #   exec tmux
 # fi
 
+# Cargar la integración y atajos de teclado de fzf en Ubuntu
+if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
+	source /usr/share/doc/fzf/examples/key-bindings.bash
+fi
+
+if [ -f /usr/share/doc/fzf/examples/completion.bash ]; then
+	source /usr/share/doc/fzf/examples/completion.bash
+fi
+
+# Crear un enlace simbólico si fd se instaló como fdfind (común en Debian/Ubuntu)
+if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+		alias fd=fdfind
+fi
+
+# Definimos las exclusiones en una sola variable para no repetir código
+EXCLUDES="--exclude .git --exclude node_modules --exclude .venv --exclude dist --exclude build --exclude target"
+
+# Aplicamos las exclusiones a los comandos de fzf
+export FZF_DEFAULT_COMMAND="fdfind --type f --hidden $EXCLUDES"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fdfind --type d --hidden $EXCLUDES"
+
+# Función para que cd use fzf si no le pasas ninguna carpeta
+cd() {
+	if [ "$#" -eq 0 ]; then
+		local dir
+		dir=$(find . -maxdepth 3 -type d 2>/dev/null | fzf --preview 'ls -la {}')
+		[ -n "$dir" ] && builtin cd "$dir"
+	else
+		builtin cd "$@"
+	fi
+}
+
+# fnm
+FNM_PATH="/home/brayan/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+	export PATH="$FNM_PATH:$PATH"
+	eval "$(fnm env --shell bash)"
+fi
+
 # Si no se está ejecutando de forma interactiva, no hacer nada
 case $- in
 *i*) ;;
@@ -111,7 +151,7 @@ export PATH=$PATH:.
 export EDITOR=vim
 
 # AJUSTAR NOMBRE DE USUARIO
-export PBASH=/mnt/c/Users/USUARIO/Documents/Bash/
+export PBASH=/mnt/c/Users/braya/Documents/Bash/
 
 # configuracion para pegar en modo vi (p/P)
 # Pegar desde el portapapeles de Windows con "p" en modo normal
@@ -139,3 +179,13 @@ bind -m vi-command -x '"P": vi_insert_clipboard'
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 . "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
+
+# opencode
+export PATH=/home/brayan/.opencode/bin:$PATH
+
+# fnm
+FNM_PATH="/home/brayan/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell bash)"
+fi

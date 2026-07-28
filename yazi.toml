@@ -1,0 +1,70 @@
+###########################################
+# APARIENCIA Y COMPORTAMIENTO
+###########################################
+
+[manager]
+title_format = "Yazi: {cwd}"
+show_hidden = true
+show_doors = true
+sort_by = "alphabetical"
+sort_sensitive = false
+sort_reverse = false
+sort_dir_first = true
+scrolloff = 5
+mouse_events = true
+
+# [manager.sort]
+# by = "mtime"
+# dir_first = true
+# reverse = false
+
+[manager.linemode]
+mode = "filename"
+
+###########################################
+# PREVIEW
+###########################################
+
+[preview]
+image_preview_delay = 15
+max_width = 1500
+max_height = 1500
+# Windows Terminal soporta de forma nativa "sixel" en sus versiones recientes
+image_filter = "triangle"
+###########################################
+# APERTURA DE ARCHIVOS (OPENER)
+###########################################
+
+[opener]
+edit = [
+	{ run = 'nvim "$@"', block = true, desc = "Editor" }
+]
+
+fallback = [
+	{ run = 'start "" "%*"', desc = "Abrir predeterminado de Windows" }
+]
+
+vlc = [
+	{ run = '"C:\Program Files\VideoLAN\VLC\vlc.exe" "%*"', orphan = true, desc = "Reproducir con VLC" }
+]
+
+[open]
+prepend_rules = [
+	{ mime = "*.txt", use = "edit" },
+	{ mime = "*.md", use = "edit" },
+
+	{ mime = "*.mp4",  use = [ "vlc", "fallback" ] },
+	{ mime = "*.mkv",  use = [ "vlc", "fallback" ] },
+	{ mime = "*.avi",  use = [ "vlc", "fallback" ] },
+	{ mime = "*.mp3",  use = [ "vlc", "fallback" ] },
+	{ mime = "*.wav",  use = [ "vlc", "fallback" ] },
+
+	{ mime = "*", use = "fallback" }
+]
+
+###########################################
+# COMPORTAMIENTO DE SALIDA
+###########################################
+
+[input]
+# Configuración para evitar salir con ESC en modos de entrada si es necesario

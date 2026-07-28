@@ -1,92 +1,18 @@
-/*
-# EXTENSIONES DE VS CODE ORGANIZADAS POR CATEGORÍA
-
-## 🐍 PYTHON
-- AREPL for python
-- autopep8
-- isort
-- Python
-- Pylance
-- Python Debugger
-- Python Envionment
-- Black Formatter
-
-## 🗄️ BASES DE DATOS
-- Database Client
-- SQLite
-- SQLite Viewer
-- PostgreSQL
-
-## ☕ JAVA
-- Java
-- Language Support for Java(TM) by Red Hat
-
-## 🌐 DESARROLLO WEB
-- Auto Rename Tag
-- Bash Beutify
-- C/C++
-- C/C++ Compile Run
-- Docker
-- Live Server
-- Open PHP/HTML/CSS/JS in Browser
-- PHP Intelephense
-- PHP Server
-- PlantUML
-- Quokka.js
-- Tailwind CSS IntelliSense
-- WSL
-
-## 📊 VISUALIZACIÓN DE DATOS
-- Data Workspace
-- JSON Cracks
-- Markdown Preview Mermaid Support
-- vscode-pdf
-
-## 🔧 HERRAMIENTAS DE DESARROLLO
-- CodeGPT
-- Code Snap
-- Console Ninja
-- Container Tools
-- Eraser Diagrams
-- Git Graph
-- GitHub Copilot
-- GitHub Copilot Chat
-- GitHub Pull Requests
-- GitLens
-- IntelliCode
-- Live Share
-- Postman
-- Todo Tree
-
-## 📝 EDITOR Y FORMATO
-- Better Comments
-- Better Shell Syntax
-- Error Lens
-- indent-rainbow
-- Markdown All in One
-- Markdown Converter
-- Material Icon Theme
-- Prettier - Code formatter
-
-## 🎨 TEMAS Y APARIENCIA
-- Brogrammer Plus
-- Material Icon Theme
-
-## 📚 MARKDOWN
-- Markdown All in One
-- Markdown Converter
-- Markdown Preview Mermaid Support
-
-## 💻 TERMINAL Y SHELL
-- Powershell
-- VSCode Neovim
-
-## 📄 VISUALIZADORES
-- vscode-pdf
-
-*/
 // organiza la configuracion de forma alfabetica. ignora los comentarios.
 {
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+  },
+  "console-ninja.featureSet": "Community",
+  "cursor.cpp.disabledLanguages": [
+    "plaintext"
+  ],
   "diffEditor.ignoreTrimWhitespace": false,
   "diffEditor.maxComputationTime": 0,
   "editor.autoClosingBrackets": "always",
@@ -98,13 +24,26 @@
   "editor.insertSpaces": true,
   "editor.lineNumbers": "relative",
   "editor.renderWhitespace": "trailing",
-  "editor.tabSize": 2,
   "editor.suggestSelection": "first",
   "editor.tabCompletion": "on",
+  "editor.tabSize": 2,
   "editor.wordWrap": "on",
+  "editor.linkedEditing": true,
   "explorer.autoReveal": false,
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
+  "files.autoSave": "onFocusChange",
+  "files.trimTrailingWhitespace": true,
+  "git.autofetch": true,
+  "markdownConverter.Document.HeaderFooterEnabled": false,
+  "redhat.telemetry.enabled": false,
+  "telemetry.editStats.enabled": false,
+  "telemetry.feedback.enabled": false,
+  "telemetry.telemetryLevel": "off",
+  "terminal.integrated.fontFamily": "RobotoMono Nerd Font",
+  "terminal.integrated.fontSize": 16,
+  "terminal.integrated.gpuAcceleration": "on",
+  "terminal.integrated.suggest.enabled": true,
   "vscode-neovim.compositeKeys": {
     "jk": {
       "command": "vscode-neovim.lua",
@@ -117,29 +56,48 @@
       ],
     },
   },
-  "files.autoSave": "onFocusChange",
-  "files.trimTrailingWhitespace": true,
-  "git.autofetch": true,
-  "markdownConverter.Document.HeaderFooterEnabled": false,
-  "redhat.telemetry.enabled": false,
-  "terminal.integrated.fontFamily": "RobotoMono Nerd Font",
-  "terminal.integrated.fontSize": 16,
-  "terminal.integrated.gpuAcceleration": "on",
-  "terminal.integrated.suggest.enabled": true,
   "window.commandCenter": true,
+  "workbench.activityBar.location": "bottom",
   "workbench.colorCustomizations": {
     "editorLineNumber.foreground": "#de612b"
   },
   "workbench.colorTheme": "Brogrammer Plus",
   "workbench.iconTheme": "material-icon-theme",
   "workbench.sideBar.location": "right",
-  "cursor.cpp.disabledLanguages": [
-    "plaintext"
-  ],
-  "[markdown]": {
-    "editor.defaultFormatter": "yzhang.markdown-all-in-one"
-  },
+  "workbench.navigationControl.enabled": false,
   "extensions.experimental.affinity": {
     "asvetliakov.vscode-neovim": 1
+  },
+  "window.autoDetectColorScheme": false,
+  "roo-cline.debug": false,
+  "roo-cline.allowedCommands": [
+    "git log",
+    "git diff",
+    "git show"
+  ],
+  "roo-cline.deniedCommands": [],
+  "python.defaultInterpreterPath": "c:\\Users\\braya\\AppData\\Roaming\\uv\\python\\cpython-3.12.11-windows-x86_64-none\\python.exe",
+  "markdown.extension.completion.enabled": true,
+  "workbench.editorAssociations": {
+    "*.md": "markdownEditorOptimized.editor",
+    "*.markdown": "markdownEditorOptimized.editor",
+    "*.mdx": "markdownEditorOptimized.editor",
+    "*.mdc": "markdownEditorOptimized.editor",
+    "git:/**/*.md": "default",
+    "git:/**/*.markdown": "default",
+    "git:/**/*.mdx": "default",
+    "git:/**/*.mdc": "default",
+    "git:**/*.md": "default",
+    "git:**/*.markdown": "default",
+    "git:**/*.mdx": "default",
+    "git:**/*.mdc": "default",
+    "chat-editing-text-model:/**/*.md": "default",
+    "chat-editing-text-model:/**/*.markdown": "default",
+    "chat-editing-text-model:/**/*.mdx": "default",
+    "chat-editing-text-model:/**/*.mdc": "default",
+    "chat-editing-text-model:**/*.md": "default",
+    "chat-editing-text-model:**/*.markdown": "default",
+    "chat-editing-text-model:**/*.mdx": "default",
+    "chat-editing-text-model:**/*.mdc": "default"
   }
 }

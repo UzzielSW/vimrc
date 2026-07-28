@@ -6,7 +6,7 @@
 alias v='nvim'
 alias q='exit'
 alias c='clear'
-alias W='cd /mnt/c/Users/USUARIO/'
+alias W='cd /mnt/c/Users/braya/'
 alias l='ls'
 alias ll='ls -alF'
 alias la='ls -A'

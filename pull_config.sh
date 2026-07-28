@@ -64,7 +64,7 @@ copy_file_with_validation() {
         else
             print_message $RED "✗ Error al copiar $description"
             return 1
-        fi
+				fi
     else
         return 1
     fi
@@ -78,7 +78,7 @@ pullVim() {
 pullNvimLinux() {
     print_message $BLUE "Actualizando configuración de Neovim (Linux)..."
     local ruta_nvim="$HOME/.config/nvim/"
-    copy_file_with_validation "$ruta_nvim/init.vim" "./init.vim" "init.vim"
+    copy_file_with_validation "$ruta_nvim/init.vim" "./init_linux.vim" "init_linux.vim"
 }
 
 pullNvimWindows() {
@@ -175,12 +175,30 @@ pullCursor() {
     print_message $GREEN "Configuración de Cursor actualizada exitosamente."
 }
 
+pullYazi() {
+    print_message $BLUE "Actualizando configuración de Yazi (Windows)..."
+
+    local username=$(get_windows_username)
+    local ruta_yazi="/mnt/c/Users/$username/AppData/Roaming/yazi/config"
+
+    copy_file_with_validation "$ruta_yazi/yazi.toml" "./yazi.toml" "yazi.toml"
+}
+
+pullLazygit() {
+    print_message $BLUE "Actualizando configuración de Lazygit (Windows)..."
+
+    local username=$(get_windows_username)
+    local ruta_lazygit="/mnt/c/Users/$username/AppData/Local/lazygit"
+
+    copy_file_with_validation "$ruta_lazygit/config.yml" "./config.yml" "config.yml"
+}
+
 pullAll() {
     print_message $BLUE "Actualizando todas las configuraciones..."
     local failed=0
     local failures=()
 
-    for func in pullVim pullNvimLinux pullNvimWindows pullTmux pullFish pullBash pullPowerShell pullIntelJ pullCursor; do
+    for func in pullVim pullNvimLinux pullNvimWindows pullTmux pullFish pullBash pullPowerShell pullIntelJ pullCursor pullYazi pullLazygit; do
         if ! "$func"; then
             failures+=("$func")
             ((failed++))
@@ -208,7 +226,9 @@ show_menu() {
     echo -e "${YELLOW}g)${NC} PowerShell"
     echo -e "${YELLOW}h)${NC} IntelJ IDEA"
     echo -e "${YELLOW}i)${NC} Cursor (Windows)"
-    echo -e "${YELLOW}j)${NC} Todos (Traer todo)"
+    echo -e "${YELLOW}j)${NC} Yazi"
+    echo -e "${YELLOW}k)${NC} Lazygit"
+    echo -e "${YELLOW}l)${NC} Todos (Traer todo)"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
 }
@@ -246,6 +266,12 @@ process_option() {
             pullCursor
             ;;
         j|J)
+            pullYazi
+            ;;
+        k|K)
+            pullLazygit
+            ;;
+        l|L)
             pullAll
             ;;
         q|Q)

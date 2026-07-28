@@ -17,8 +17,6 @@ NC='\033[0m' # No Color
 # Variables globales
 USERNAME=$(whoami)
 HOME_DIR="/home/$USERNAME"
-NVM_VERSION="v0.40.3"
-NODE_LTS_VERSION="22.11.0"
 
 # Función para imprimir mensajes con colores
 print_message() {
@@ -74,13 +72,17 @@ install_basic_packages() {
         "curl"
         "wget"
         "git"
-        "vim"
         "htop"
         "tree"
         "fzf"
         "ripgrep"
         "fd-find"
         "zathura"
+				"git-delta"
+				"jq" # JSON processor. Permite filtrar, transformar y manipular JSON.
+				"yq" # YAML processor. Permite filtrar, transformar y manipular YAML.
+				"bat" # Cat clone. Permite ver archivos de forma mas legible.
+				"tldr" # Manual de comandos. Permite ver la documentación de los comandos de forma mas legible.
     )
 
     print_message $BLUE "Instalando paquetes básicos..."
@@ -100,7 +102,15 @@ setup_git() {
         git config --global user.email "brayanpuyol@gmail.com"
         git config --global init.defaultBranch main
         git config --global pull.rebase false
-        git config --global core.editor "vim"
+        git config --global core.editor "nvim"
+
+				# Configuración de delta:
+				git config --global core.pager "delta"
+				git config --global interactive.singlekey true
+				git config --global delta.navigate true
+				git config --global delta.light false
+				git config --global delta.line-numbers true
+				git config --global delta.side-by-side false
 
         print_message $GREEN "✓ Git configurado correctamente"
     else
@@ -108,49 +118,18 @@ setup_git() {
     fi
 }
 
-# Función para instalar y configurar NVM
-setup_nvm() {
-    print_section "INSTALANDO NVM Y NODE.JS"
+# Función para instalar y configurar FNM
+setup_fnm() {
+    print_section "INSTALANDO FNM (Fast Node Manager)"
 
-    if confirm_install "NVM (Node Version Manager)"; then
-        print_message $BLUE "Descargando NVM..."
+    if confirm_install "FNM (Fast Node Manager)"; then
+        print_message $BLUE "Instalando FNM..."
 
-        # Descargar e instalar NVM
-        curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh" | bash
+        curl -fsSL https://fnm.vercel.app/install | bash
 
-        # Configurar NVM en el shell actual
-        export NVM_DIR="$HOME_DIR/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-        # Agregar configuración al .bashrc
-        if ! grep -q "NVM_DIR" "$HOME_DIR/.bashrc"; then
-            echo "" >> "$HOME_DIR/.bashrc"
-            echo "# NVM Configuration" >> "$HOME_DIR/.bashrc"
-            echo 'export NVM_DIR="$HOME/.nvm"' >> "$HOME_DIR/.bashrc"
-            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> "$HOME_DIR/.bashrc"
-            echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> "$HOME_DIR/.bashrc"
-        fi
-
-        # Recargar .bashrc
-        source "$HOME_DIR/.bashrc"
-
-        # Verificar instalación
-        if command_exists nvm; then
-            print_message $GREEN "✓ NVM instalado correctamente"
-
-            print_message $BLUE "Instalando Node.js LTS ($NODE_LTS_VERSION)..."
-            nvm install "$NODE_LTS_VERSION"
-            nvm use "$NODE_LTS_VERSION"
-            nvm alias default "$NODE_LTS_VERSION"
-
-            print_message $GREEN "✓ Node.js $NODE_LTS_VERSION instalado y configurado"
-        else
-            print_message $RED "✗ Error al instalar NVM"
-            return 1
-        fi
+        print_message $GREEN "✓ FNM instalado correctamente"
     else
-        print_message $YELLOW "Instalación de NVM omitida"
+        print_message $YELLOW "Instalación de FNM omitida"
     fi
 }
 
@@ -230,6 +209,36 @@ install_lazygit() {
     fi
 }
 
+# Función para instalar Yazi
+install_yazi() {
+    print_section "INSTALANDO YAZI"
+
+    if confirm_install "Yazi (terminal file manager)"; then
+        print_message $BLUE "Descargando Yazi..."
+
+        local tmp_yazi=$(mktemp -d)
+        local yazi_version
+        yazi_version=$(curl -s "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep '"tag_name"' | sed -n 's/.*"v\([^"]*\)".*/\1/p')
+
+        if [ -z "$yazi_version" ]; then
+            print_message $RED "✗ No se pudo obtener la versión de Yazi"
+            return 1
+        fi
+
+        curl -sLo "$tmp_yazi/yazi.zip" "https://github.com/sxyazi/yazi/releases/download/v${yazi_version}/yazi-x86_64-unknown-linux-gnu.zip"
+        unzip -q "$tmp_yazi/yazi.zip" -d "$tmp_yazi"
+
+        sudo mv "$tmp_yazi/yazi-x86_64-unknown-linux-gnu/yazi" /usr/local/bin/
+        sudo mv "$tmp_yazi/yazi-x86_64-unknown-linux-gnu/ya" /usr/local/bin/
+
+        rm -rf "$tmp_yazi"
+
+        print_message $GREEN "✓ Yazi instalado correctamente"
+    else
+        print_message $YELLOW "Instalación de Yazi omitida"
+    fi
+}
+
 # Función para instalar Homebrew
 setup_homebrew() {
     print_section "INSTALANDO HOMEBREW"
@@ -257,6 +266,13 @@ setup_homebrew() {
             brew install neovim
             print_message $GREEN "✓ Neovim instalado correctamente"
         fi
+
+				if confirm_install "pnpm desde Homebrew"; then
+						print_message $BLUE "Instalando pnpm..."
+						brew install pnpm
+						print_message $GREEN "✓ pnpm instalado correctamente"
+				fi
+
     else
         print_message $YELLOW "Instalación de Homebrew omitida"
     fi
@@ -274,10 +290,6 @@ install_additional_tools() {
             "docker-compose" # Docker Compose es una herramienta para definir y ejecutar aplicaciones Docker de múltiples contenedores.
             "postgresql-client"
             "redis-tools"
-            "jq" # JSON processor. Permite filtrar, transformar y manipular JSON.
-            "yq" # YAML processor. Permite filtrar, transformar y manipular YAML.
-            "bat" # Cat clone. Permite ver archivos de forma mas legible.
-            "tldr" # Manual de comandos. Permite ver la documentación de los comandos de forma mas legible.
         )
 
         print_message $BLUE "Instalando herramientas adicionales..."
@@ -341,19 +353,20 @@ show_summary() {
     echo "  - Sistema actualizado"
     echo "  - Paquetes básicos (build-essential, curl, wget, git, vim, htop, tree, fzf, ripgrep, fd-find, zathura)"
     echo "  - Git (si aceptaste)"
-    echo "  - NVM y Node.js (si aceptaste)"
+    echo "  - FNM (si aceptaste)"
     echo "  - Java JDK (si aceptaste)"
     echo "  - Fish shell, Oh My Fish y plugin pj (si aceptaste)"
     echo "  - Lazygit (si aceptaste)"
+    echo "  - Yazi (si aceptaste)"
     echo "  - Homebrew y Neovim (si aceptaste)"
-    echo "  - Herramientas adicionales: Docker, postgresql-client, redis-tools, jq, yq, bat, tldr (si aceptaste)"
+    echo "  - Herramientas adicionales: Docker, postgresql-client, redis-tools (si aceptaste)"
     echo "  - Directorios de desarrollo"
     echo "  - Limpieza de caché y paquetes no utilizados"
     echo
     echo -e "${YELLOW}Próximos pasos recomendados:${NC}"
     echo "1. Reinicia tu terminal o ejecuta: source ~/.bashrc"
     echo "2. Si instalaste Docker: ejecuta \`newgrp docker\` para usar Docker sin sudo"
-    echo "3. Verifica instalaciones: node --version, java -version, brew --version, nvim --version, lazygit --version"
+    echo "3. Verifica instalaciones: fnm --version, java -version, brew --version, nvim --version, lazygit --version, yazi --version"
     echo
     echo -e "${BLUE}¡Tu entorno de desarrollo en Ubuntu está listo!${NC}"
     echo -e "${GREEN}===============================================================${NC}"
@@ -380,10 +393,11 @@ main() {
     update_system
     install_basic_packages
     setup_git
-    setup_nvm
+    setup_fnm
     setup_java
     setup_fish
     install_lazygit
+    install_yazi
     setup_homebrew
     install_additional_tools
     setup_dev_directories

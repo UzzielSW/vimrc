@@ -85,13 +85,18 @@ confVim() {
         return 1
     fi
 
-    print_message $YELLOW "Descargando Vim-Plug..."
-    if curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim; then
-        print_message $GREEN "Vim-Plug descargado exitosamente."
+    local plug_path="$HOME/.vim/autoload/plug.vim"
+    if [ -f "$plug_path" ]; then
+        print_message $GREEN "Vim-Plug ya está instalado."
     else
-        print_message $RED "Error al descargar Vim-Plug."
-        return 1
+        print_message $YELLOW "Descargando Vim-Plug..."
+        if curl -fLo "$plug_path" --create-dirs \
+            https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim; then
+            print_message $GREEN "Vim-Plug descargado exitosamente."
+        else
+            print_message $RED "Error al descargar Vim-Plug."
+            return 1
+        fi
     fi
 
     if copy_file_with_validation ".vimrc" "$HOME/.vimrc" "Configuración de Vim"; then
@@ -108,13 +113,18 @@ confNvimLinux() {
         return 1
     fi
 
-    print_message $YELLOW "Descargando Vim-Plug..."
-    if sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'; then
-        print_message $GREEN "Vim-Plug descargado exitosamente."
+    local plug_path="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload/plug.vim"
+    if [ -f "$plug_path" ]; then
+        print_message $GREEN "Vim-Plug ya está instalado."
     else
-        print_message $RED "Error al descargar Vim-Plug."
-        return 1
+        print_message $YELLOW "Descargando Vim-Plug..."
+        if sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+             https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'; then
+            print_message $GREEN "Vim-Plug descargado exitosamente."
+        else
+            print_message $RED "Error al descargar Vim-Plug."
+            return 1
+        fi
     fi
 
     local ruta_nvim="$HOME/.config/nvim/"
@@ -124,8 +134,7 @@ confNvimLinux() {
         mkdir -p "$ruta_nvim"
     fi
 
-    if copy_file_with_validation "init.vim" "$ruta_nvim/init.vim" "Configuración de Neovim"; then
-        print_message $GREEN "Configuración de Neovim aplicada exitosamente."
+    if copy_file_with_validation "init_linux.vim" "$ruta_nvim/init.vim" "Configuración de Neovim"; then print_message $GREEN "Configuración de Neovim aplicada exitosamente."
     else
         return 1
     fi
@@ -144,12 +153,17 @@ confNvimWindows() {
         mkdir -p "$ruta_vimfiles/autoload"
     fi
 
-    print_message $YELLOW "Descargando Vim-Plug..."
-    if pwsh.exe -c "iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim | ni \"\$(@(\$env:XDG_DATA_HOME, \$env:LOCALAPPDATA)[\$null -eq \$env:XDG_DATA_HOME])/nvim-data/site/autoload/plug.vim\" -Force"; then
-        print_message $GREEN "Vim-Plug descargado exitosamente."
+    local plug_win_path="/mnt/c/Users/$username/AppData/Local/nvim-data/site/autoload/plug.vim"
+    if [ -f "$plug_win_path" ]; then
+        print_message $GREEN "Vim-Plug ya está instalado."
     else
-        print_message $RED "Error al descargar Vim-Plug."
-        return 1
+        print_message $YELLOW "Descargando Vim-Plug..."
+        if pwsh.exe -c "iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim | ni \"\$(@(\$env:XDG_DATA_HOME, \$env:LOCALAPPDATA)[\$null -eq \$env:XDG_DATA_HOME])/nvim-data/site/autoload/plug.vim\" -Force"; then
+            print_message $GREEN "Vim-Plug descargado exitosamente."
+        else
+            print_message $RED "Error al descargar Vim-Plug."
+            return 1
+        fi
     fi
 
     if [ ! -d "$ruta_nvim" ]; then
@@ -300,7 +314,7 @@ confAll() {
     local failures=()
 
     # Mantener paridad con pull: solo los targets que pull soporta
-    for func in confVim confNvimLinux confNvimWindows confTmux confFish confBash confPowerShell confIntelJ confCursor; do
+    for func in confVim confNvimLinux confNvimWindows confTmux confFish confBash confPowerShell confIntelJ confCursor confYazi confLazygit confInstallWin; do
         if ! "$func"; then
             failures+=("$func")
             ((failed++))
@@ -347,6 +361,92 @@ confAuto() {
     fi
 }
 
+confYazi() {
+    print_message $BLUE "Configurando Yazi..."
+
+    local files_copied=0
+
+    # Linux
+    local yazi_linux_dir="$HOME/.config/yazi"
+    if [ ! -d "$yazi_linux_dir" ]; then
+        print_message $YELLOW "Creando directorio $yazi_linux_dir..."
+        mkdir -p "$yazi_linux_dir"
+    fi
+    if copy_file_with_validation "yazi.toml" "$yazi_linux_dir/yazi.toml" "Yazi (Linux)"; then
+        ((files_copied++))
+    fi
+
+    # Windows
+    local username=$(get_windows_username)
+    local yazi_win_dir="/mnt/c/Users/$username/AppData/Roaming/yazi/config"
+    if [ ! -d "$yazi_win_dir" ]; then
+        print_message $YELLOW "Creando directorio $yazi_win_dir..."
+        mkdir -p "$yazi_win_dir"
+    fi
+    if copy_file_with_validation "yazi.toml" "$yazi_win_dir/yazi.toml" "Yazi (Windows)"; then
+        ((files_copied++))
+    fi
+
+    if [ $files_copied -eq 0 ]; then
+        print_message $RED "No se pudo aplicar la configuración de Yazi en ningún entorno."
+        return 1
+    fi
+
+    print_message $GREEN "Configuración de Yazi aplicada exitosamente."
+}
+
+confLazygit() {
+    print_message $BLUE "Configurando Lazygit..."
+
+    local files_copied=0
+
+    # Linux
+    local lazygit_linux_dir="$HOME/.config/lazygit"
+    if [ ! -d "$lazygit_linux_dir" ]; then
+        print_message $YELLOW "Creando directorio $lazygit_linux_dir..."
+        mkdir -p "$lazygit_linux_dir"
+    fi
+    if copy_file_with_validation "config.yml" "$lazygit_linux_dir/config.yml" "Lazygit (Linux)"; then
+        ((files_copied++))
+    fi
+
+    # Windows
+    local username=$(get_windows_username)
+    local lazygit_win_dir="/mnt/c/Users/$username/AppData/Local/lazygit"
+    if [ ! -d "$lazygit_win_dir" ]; then
+        print_message $YELLOW "Creando directorio $lazygit_win_dir..."
+        mkdir -p "$lazygit_win_dir"
+    fi
+    if copy_file_with_validation "config.yml" "$lazygit_win_dir/config.yml" "Lazygit (Windows)"; then
+        ((files_copied++))
+    fi
+
+    if [ $files_copied -eq 0 ]; then
+        print_message $RED "No se pudo aplicar la configuración de Lazygit en ningún entorno."
+        return 1
+    fi
+
+    print_message $GREEN "Configuración de Lazygit aplicada exitosamente."
+}
+
+confInstallWin() {
+    print_message $BLUE "Copiando config_install_win.ps1 a Windows Desktop..."
+
+    local username=$(get_windows_username)
+    local destino="/mnt/c/Users/$username/Desktop"
+
+    if [ ! -d "$destino" ]; then
+        print_message $YELLOW "Creando directorio $destino..."
+        mkdir -p "$destino"
+    fi
+
+    if copy_file_with_validation "config_install_win.ps1" "$destino/config_install_win.ps1" "config_install_win.ps1"; then
+        print_message $GREEN "Script de instalación copiado al escritorio de Windows exitosamente."
+    else
+        return 1
+    fi
+}
+
 resetConfigNvim() {
     print_message $YELLOW "Reseteando configuración de Neovim..."
 
@@ -380,7 +480,10 @@ show_menu() {
     echo -e "${YELLOW}i)${NC} Cursor (Windows)"
     echo -e "${YELLOW}j)${NC} Auto (Scripts de Automatización)"
     echo -e "${YELLOW}k)${NC} Reset Neovim"
-    echo -e "${YELLOW}l)${NC} Todos (Configurar todo)"
+    echo -e "${YELLOW}l)${NC} Yazi"
+    echo -e "${YELLOW}m)${NC} Lazygit"
+    echo -e "${YELLOW}n)${NC} Install Win (Desktop)"
+    echo -e "${YELLOW}o)${NC} Todos (Configurar todo)"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
 }
@@ -436,6 +539,15 @@ main() {
                 resetConfigNvim
                 ;;
             l|L)
+                confYazi
+                ;;
+            m|M)
+                confLazygit
+                ;;
+            n|N)
+                confInstallWin
+                ;;
+            o|O)
                 confAll
                 ;;
             q|Q)

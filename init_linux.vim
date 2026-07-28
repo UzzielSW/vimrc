@@ -56,8 +56,8 @@ function! CleanAccentsAndSymbols()
 	" VALIDACION PARA EVITAR EJECUTAR ESTA FUNCION EN ESTE ARCHIVO
 	" let l:current_file = expand('%:t')
 	let l:current_file = substitute(expand('%:p'), '/', '\\', 'g')
-	" let l:init_file = expand('~/.config/nvim/init.vim') " Ruta completa de tu init.vim - Linux
-	let l:init_file = expand('~/AppData/Local/nvim/init.vim') " Ruta completa de tu init.vim
+	let l:init_file = expand('~/.config/nvim/init.vim') " Ruta completa de tu init.vim - Linux
+	" let l:init_file = expand('~/AppData/Local/nvim/init.vim') " Ruta completa de tu init.vim
 
 	if l:current_file ==# l:init_file " Si estamos en init.vim, salir
 	" if l:current_file ==# 'init.vim'
@@ -97,8 +97,8 @@ function! DeepCleanGarbage()
 	" VALIDACION PARA EVITAR EJECUTAR ESTA FUNCION EN ESTE ARCHIVO
 	" let l:current_file = expand('%:t')
 	let l:current_file = substitute(expand('%:p'), '/', '\\', 'g')
-	" let l:init_file = expand('~/.config/nvim/init.vim') " Ruta completa de tu init.vim - Linux
-	let l:init_file = expand('~/AppData/Local/nvim/init.vim') " Ruta completa de tu init.vim
+	let l:init_file = expand('~/.config/nvim/init.vim') " Ruta completa de tu init.vim - Linux
+	" let l:init_file = expand('~/AppData/Local/nvim/init.vim') " Ruta completa de tu init.vim
 
 	if l:current_file ==# l:init_file " Si estamos en init.vim, salir
 	" if l:current_file ==# 'init.vim'
@@ -247,13 +247,13 @@ nnoremap <leader>rp :w<CR>:!clear<CR>:!python "%"<CR>
 
 " # Config.
 "Linux
-" nnoremap <leader>sr :source ~/.config/nvim/init.vim <CR>
-" nnoremap <leader>eg :e ~/.config/nvim/init.vim <CR>
+nnoremap <leader>sr :source ~/.config/nvim/init.vim <CR>
+nnoremap <leader>eg :e ~/.config/nvim/init.vim <CR>
 
 "Windows
-nnoremap <leader>sr :source ~/AppData/Local/nvim/init.vim <CR>
-nnoremap <leader>eg :e ~/AppData/Local/nvim/init.vim <CR>
-nnoremap <C-o> :e ~/OneDrive/Documentos/edit.md <CR>
+" nnoremap <leader>sr :source ~/AppData/Local/nvim/init.vim <CR>
+" nnoremap <leader>eg :e ~/AppData/Local/nvim/init.vim <CR>
+" nnoremap <C-o> :e ~/OneDrive/Documentos/edit.md <CR>
 "--
 nnoremap <silent> <C-q> :w<CR>:bd \| bw <CR>
 nnoremap Q :wq <CR>
@@ -389,9 +389,9 @@ direction = 'horizontal',  -- Se abre abajo tipo VSCode
 close_on_exit = true,
 
 -- Configurar PowerShell Core (pwsh) como shell
-shell = "pwsh",
+-- shell = "pwsh",
 -- # Config.
--- shell = "bash",
+shell = "bash",
 })
 
 -- Mapeos de teclas convenientes para trabajar dentro de la terminal

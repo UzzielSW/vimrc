@@ -1,0 +1,29 @@
+gui:
+  # Usa iconos en la interfaz si tu terminal soporta Nerdfonts
+  showIcons: true
+  # Muestra la línea de comandos de git real que Lazygit ejecuta al fondo
+
+  # Excelente para aprender qué hace por debajo cada acción
+  showCommandLog: true
+  # Configuración visual: bordes redondeados y un panel activo bien marcado
+  theme:
+    activeBorderColor:
+      - '#50fa7b' # Verde (puedes usar 'green' o códigos HEX)
+      - bold
+    selectedLineBgColor:
+      - '#44475a'
+git:
+  # Paginador personalizado para ver los diffs con colores y diseño limpio
+
+  # Requiere tener instalado 'delta' (muy recomendado)
+  pagers:
+    - colorArg: always
+      pager: delta --dark --paging=never
+  # Desactiva la confirmación al hacer push (para ir más rápido)
+
+  # Quítalo si prefieres mantener la seguridad extra
+  skipHookPrefix: false
+os:
+  editPreset: 'nvim' # Reemplaza el editor por defecto para comentarios rápidos si lo deseas
+  editCommand: 'nvim'
+
