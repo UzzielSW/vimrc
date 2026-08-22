@@ -1,6 +1,6 @@
 # ==============================================================================
 # Script de Instalación Automatizada de Paquetes con Winget
-# Autor: Uzziel Puyol
+# Autor: Brayan Puyol
 # ==============================================================================
 
 # ==============================================================================
@@ -20,28 +20,10 @@ $paquetes = @(
         envPath     = "$env:LocalAppData\Pandoc"
     },
     @{
-        nombre      = "PlantUML"
-        id          = "PlantUML.PlantUML"
-        descripcion = "Herramienta para crear diagramas UML"
-        envPath     = $null
-    },
-    @{
         nombre      = "MinGW / w64devkit"
         id          = "skeeto.w64devkit"
         descripcion = "Compilador GCC para Windows"
         envPath     = "C:\w64devkit\bin"
-    },
-    @{
-        nombre      = "ripgrep"
-        id          = "BurntSushi.ripgrep.MSVC"
-        descripcion = "Herramienta de búsqueda rápida en archivos"
-        envPath     = $null
-    },
-    @{
-        nombre      = "fd"
-        id          = "sharkdp.fd"
-        descripcion = "Alternativa moderna a find"
-        envPath     = $null
     },
     @{
         nombre      = "CMake"
@@ -233,6 +215,97 @@ function Configure-GitDelta {
     Write-Host " [✔] Git configurado con delta correctamente." -ForegroundColor Green
 }
 
+function Install-Scoop {
+    Write-Host "`n==================================================" -ForegroundColor Cyan
+    Write-Host "Verificando Scoop (gestor de paquetes)" -ForegroundColor Yellow
+    Write-Host "=================================================="
+
+    if (Get-Command scoop -ErrorAction SilentlyContinue) {
+        Write-Host " [✔] Scoop ya está instalado." -ForegroundColor Green
+    } else {
+        Write-Host " [➜] Instalando Scoop..." -ForegroundColor DarkCyan
+        try {
+            Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+            Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+            Write-Host " [✔] Scoop instalado correctamente." -ForegroundColor Green
+        } catch {
+            Write-Host " [✖] Error instalando Scoop: $_" -ForegroundColor Red
+            return
+        }
+    }
+}
+
+function Install-ScoopPackages {
+    Write-Host "`n==================================================" -ForegroundColor Cyan
+    Write-Host "Instalando paquetes con Scoop" -ForegroundColor Yellow
+    Write-Host "=================================================="
+
+    if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
+        Write-Host " [✖] Scoop no está disponible. Omitiendo instalaciones." -ForegroundColor Red
+        return
+    }
+
+    $scoopPackages = @(
+        @{nombre="sd";          id="main/sd";          descripcion="Intercambio de búsqueda y reemplazo"},
+        @{nombre="fd";          id="main/fd";          descripcion="Alternativa rápida a find"},
+        @{nombre="ripgrep";     id="main/ripgrep";     descripcion="Búsqueda rápida en archivos"},
+        @{nombre="unzip";       id="main/unzip";       descripcion="Descompresión de archivos"},
+        @{nombre="tree-sitter"; id="main/tree-sitter"; descripcion="Parser incremental para grammáticas"}
+    )
+
+    foreach ($pkg in $scoopPackages) {
+        Write-Host "`n--- $($pkg.nombre) ---" -ForegroundColor Yellow
+        Write-Host "ID: $($pkg.id) | $($pkg.descripcion)" -ForegroundColor DarkGray
+
+        $checkInstalled = scoop list $pkg.nombre 2>$null
+        if ($checkInstalled -match $pkg.nombre) {
+            Write-Host " [✔] '$($pkg.nombre)' ya está instalado. Omitiendo..." -ForegroundColor Green
+        } else {
+            Write-Host " [➜] Instalando '$($pkg.nombre)'..." -ForegroundColor DarkCyan
+            scoop install $pkg.id
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host " [✔] '$($pkg.nombre)' se instaló correctamente." -ForegroundColor Green
+            } else {
+                Write-Host " [✖] Error instalando '$($pkg.nombre)'. Código: $LASTEXITCODE" -ForegroundColor Red
+            }
+        }
+    }
+}
+
+function Install-NpmGlobalPackages {
+    Write-Host "`n==================================================" -ForegroundColor Cyan
+    Write-Host "Instalando paquetes globales con npm" -ForegroundColor Yellow
+    Write-Host "=================================================="
+
+    if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+        Write-Host " [✖] npm no está disponible. Omitiendo instalaciones." -ForegroundColor Red
+        return
+    }
+
+    $npmPackages = @(
+        @{nombre="trash-cli"; descripcion="Mover archivos a la papelera desde CLI"},
+        @{nombre="neovim";    descripcion="Neovim para integraciones LSP"}
+    )
+
+    foreach ($pkg in $npmPackages) {
+        Write-Host "`n--- $($pkg.nombre) ---" -ForegroundColor Yellow
+        Write-Host "$($pkg.descripcion)" -ForegroundColor DarkGray
+
+        $checkInstalled = npm list -g $pkg.nombre 2>$null
+        if ($checkInstalled -match $pkg.nombre) {
+            Write-Host " [✔] '$($pkg.nombre)' ya está instalado. Omitiendo..." -ForegroundColor Green
+        } else {
+            Write-Host " [➜] Instalando '$($pkg.nombre)'..." -ForegroundColor DarkCyan
+            npm install -g $pkg.nombre
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host " [✔] '$($pkg.nombre)' se instaló correctamente." -ForegroundColor Green
+            } else {
+                Write-Host " [✖] Error instalando '$($pkg.nombre)'. Código: $LASTEXITCODE" -ForegroundColor Red
+            }
+        }
+    }
+}
+
 function Show-Summary {
     Write-Host "`n==================================================" -ForegroundColor Magenta
     Write-Host "         VERIFICACIÓN DE INSTALACIONES" -ForegroundColor Magenta
@@ -243,14 +316,20 @@ function Show-Summary {
         @{comando="node"; nombre="Node.js"},
         @{comando="yazi"; nombre="Yazi"},
         @{comando="pnpm"; nombre="pnpm"},
-        @{comando="fd"; nombre="fd"},
-        @{comando="rg"; nombre="ripgrep"},
         @{comando="cmake"; nombre="CMake"},
         @{comando="lazygit"; nombre="Lazygit"},
         @{comando="fzf"; nombre="fzf"},
         @{comando="delta"; nombre="delta"},
         @{comando="dot"; nombre="Graphviz (dot)"},
-        @{comando="pandoc"; nombre="Pandoc"}
+        @{comando="pandoc"; nombre="Pandoc"},
+        @{comando="scoop"; nombre="Scoop"},
+        @{comando="sd"; nombre="sd"},
+        @{comando="fd"; nombre="fd"},
+        @{comando="rg"; nombre="ripgrep"},
+        @{comando="unzip"; nombre="unzip"},
+        @{comando="tree-sitter"; nombre="tree-sitter"},
+        @{comando="nvim"; nombre="Neovim"},
+        @{comando="trash"; nombre="trash-cli"}
     )
 
     $allOk = $true
@@ -303,5 +382,8 @@ foreach ($pkg in $paquetes) {
 Install-FnmWithNode
 Install-PSFzf
 Configure-GitDelta
+Install-Scoop
+Install-ScoopPackages
+Install-NpmGlobalPackages
 
 Show-Summary

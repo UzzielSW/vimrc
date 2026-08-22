@@ -1,0 +1,97 @@
+{
+    "$help": "https://aka.ms/terminal-documentation",
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions": [],
+    "alwaysShowNotificationIcon": false,
+    "centerOnLaunch": true,
+    "copyFormatting": "none",
+    "copyOnSelect": true,
+    "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+    "disableAnimations": true,
+    "disabledProfileSources": 
+    [
+        "Windows.Terminal.VisualStudio",
+        "Windows.Terminal.Azure"
+    ],
+    "firstWindowPreference": "persistedWindowLayout",
+    "focusFollowMouse": true,
+    "keybindings": 
+    [
+        {
+            "id": "Terminal.CopyToClipboard",
+            "keys": "ctrl+c"
+        },
+        {
+            "id": "Terminal.DuplicatePaneAuto",
+            "keys": "alt+shift+d"
+        },
+        {
+            "id": null,
+            "keys": "alt+space"
+        }
+    ],
+    "newTabMenu": 
+    [
+        {
+            "type": "remainingProfiles"
+        }
+    ],
+    "profiles": 
+    {
+        "defaults": 
+        {
+            "adjustIndistinguishableColors": "always",
+            "backgroundImage": null,
+            "backgroundImageStretchMode": "uniformToFill",
+            "bellStyle": "taskbar",
+            "colorScheme": "Campbell",
+            "cursorColor": "#B4009E",
+            "cursorShape": "filledBox",
+            "experimental.rainbowSuggestions": true,
+            "experimental.retroTerminalEffect": false,
+            "font": 
+            {
+                "face": "CaskaydiaMono Nerd Font Mono"
+            },
+            "icon": "\ud83c\udfae",
+            "intenseTextStyle": "all",
+            "padding": "5,2,0,0",
+            "pathTranslationStyle": "mingw",
+            "scrollbarState": "visible",
+            "showMarksOnScrollbar": true,
+            "tabTitle": "hello :) welcome",
+            "useAcrylic": true
+        },
+        "list": 
+        [
+            {
+                "commandline": "%SystemRoot%\\System32\\cmd.exe",
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": false,
+                "name": "S\u00edmbolo del sistema"
+            },
+            {
+                "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+                "hidden": false,
+                "name": "PowerShell",
+                "source": "Windows.Terminal.PowershellCore"
+            },
+            {
+                "guid": "{01434fa1-d284-584d-ac70-88d5dd377a30}",
+                "hidden": false,
+                "name": "Ubuntu",
+                "source": "Microsoft.WSL"
+            }
+        ]
+    },
+    "schemes": [],
+    "searchWebDefaultQueryUrl": "https://www.google.com/search?q=%22%s%22",
+    "showTabsFullscreen": true,
+    "tabSwitcherMode": "mru",
+    "tabWidthMode": "compact",
+    "themes": [],
+    "useAcrylicInTabRow": true,
+    "warning.confirmCloseAllTabs": false,
+    "warning.inputService": false,
+    "windowingBehavior": "useExisting"
+}

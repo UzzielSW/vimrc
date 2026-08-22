@@ -43,11 +43,15 @@ nnoremap dw diw
 nnoremap cw ciw
 nnoremap W :w <CR>
 vnoremap R y:let @/ = '\V' . escape(@", '\/')<CR>:%s///g<Left><Left>
+vnoremap <C-c> y " copiar seleccionado en modo visual 
 inoremap <C-p> <C-o>]p
 inoremap <C-j> <C-o>o
 inoremap <C-b> <C-o>B
 inoremap <C-w> <C-o>W
 inoremap <C-a> <C-o>A
+inoremap <C-v> <C-o>p
+inoremap <C-H> <C-w> " Borrar palabra anterior con Ctrl + Retroceso en modo insertar
+
 "--------------
 "---------------
 " NORMALIZAR ACENTOS, SIMBOLOS TIPOGRAFICOS, GUIONES, ESPACIOS RAROS, ETC.
@@ -166,11 +170,31 @@ if !exists('g:vscode')
 	Plug 'nvim-tree/nvim-tree.lua'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'lanox/lanox-vim-theme'
+	Plug 'navarasu/onedark.nvim'
+	Plug 'zootedb0t/citruszest.nvim'
   Plug 'ryanoasis/vim-devicons'
   Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'vim-airline/vim-airline'
   Plug 'vim-airline/vim-airline-themes'
 	Plug 'lewis6991/gitsigns.nvim'
+
+	Plug 'stevearc/conform.nvim'
+  Plug 'williamboman/mason.nvim'
+	Plug 'WhoIsSethDaniel/mason-tool-installer.nvim'
+
+	" Motor principal de autocompletado y snippets
+	Plug 'hrsh7th/nvim-cmp'
+	Plug 'L3MON4D3/LuaSnip'
+	Plug 'saadparwaiz1/cmp_luasnip'
+
+	" Fuentes recomendadas de nvim-cmp
+	Plug 'hrsh7th/cmp-nvim-lsp'
+	Plug 'hrsh7th/cmp-buffer'
+	Plug 'hrsh7th/cmp-path'
+
+	" Integración de Windsurf / Codeium
+	Plug 'Exafunction/windsurf.nvim'
+
 endif
 call plug#end()
 
@@ -232,16 +256,16 @@ nnoremap <silent> <C-w>- 4<C-w>-
 " configuracion de los buffer
 nnoremap L :bnext<CR>
 nnoremap H :bprev<CR>
-inoremap <C-L> <Esc>:bnext<CR>a
-inoremap <C-H> <Esc>:bprev<CR>a
+" inoremap <C-L> <Esc>:bnext<CR>a
+" inoremap <C-H> <Esc>:bprev<CR>a
 
 
 " MAPEOS para ejecutar
 "cada que se hace <CR> se esta ejecutando un shell diferente
 " nnoremap <leader>rj :w<CR>:!clear<CR>:!cd "%:p:h"; ls; javac "%:t" *.java; java "%:t:r"<CR>
-" nnoremap <leader>ru :w<CR>:!clear<CR>:!java "%"<CR>
+" nnoremap <ljsdeader>ru :w<CR>:!clear<CR>:!java "%"<CR>
 " nnoremap <leader>rm :!cd "%:p:h"; rm *.class<CR>
-nnoremap <leader>rp :w<CR>:!clear<CR>:!python "%"<CR>
+" nnoremap <leader>rp :w<CR>:!clear<CR>:!python "%"<CR>
 "* g++ -o nombre_del_ejecutable nombre_del_archivo.cpp */
 " nnoremap <leader>rc :w<CR>:!clear<CR>:!g++ "%" && ./a<CR>
 
@@ -271,6 +295,82 @@ let g:auto_save_events = ["InsertLeave", "CompleteDone"]
 
 "=============================CONFIG LUA==================================
 lua<<EOF
+
+--------------------------------------mason---------------------------------------
+require("mason").setup()
+require("mason-tool-installer").setup({
+	ensure_installed = {
+		"biome",
+		"taplo",
+		"shfmt",
+		"sql-formatter",
+	},
+	auto_update = true,
+	run_on_start = true,
+})
+
+--------------------------------------conform---------------------------------------
+require("conform").setup({
+	formatters_by_ft = {
+		-- Entorno Web (Prioridad Biome por velocidad, respaldo a Prettierd/Prettier)
+		javascript = { "biome", "prettierd", "prettier", stop_after_first = true },
+		typescript = { "biome", "prettierd", "prettier", stop_after_first = true },
+		javascriptreact = { "biome", "prettierd", "prettier", stop_after_first = true },
+		typescriptreact = { "biome", "prettierd", "prettier", stop_after_first = true },
+		css = { "biome", "prettierd", "prettier", stop_after_first = true },
+		html = { "biome", "prettierd", "prettier", stop_after_first = true },
+
+		-- Entorno Python (Backend y Frontend)
+		python = { "ruff"}, -- Reemplaza por completo a black e isort de forma instantánea
+		htmldjango = { "djhtml" },  -- Para archivos HTML con Jinja2 o Django Templates
+
+		-- Archivos de configuración y Linux
+		markdown = { "prettierd", stop_after_first = true },
+		yaml = { "biome", "yamlfmt", stop_after_first = true },
+		toml = { "taplo" },
+		sh = { "shfmt" },
+		bash = { "shfmt" },
+
+		-- Bases de Datos (Soporta Postgres, SQLite y Oracle)
+		sql = { "sql_formatter" },
+	},
+
+	-- Configuración de los formateadores para especificar dialectos de SQL
+	formatters = {
+    djhtml = {
+			command = "djhtml", 
+			args = { "$FILENAME", "--tabwidth", "2" },
+			-- Indica que djhtml lee y modifica archivos directamente, no por entrada estándar (stdin)
+			stdin = false, 
+		},
+
+		sql_formatter = {
+			-- Puedes cambiar el dialecto por defecto según tu proyecto: 'postgresql', 'sqlite', o 'plsql' (Oracle)
+			prepend_args = { "-l", "postgresql" }, 
+		},
+
+		shfmt = {
+			prepend_args = { "-i", "2", "-ci" }, -- Indentación de 2 espacios y sangría en casos (switch)
+		},
+
+biome = {
+-- Le pasamos la bandera --write directamente a Biome
+args = { "format", "--stdin-file-path", "$FILENAME" },
+},
+
+	},
+
+	-- Ejecutar el formateo automáticamente al guardar el archivo
+	format_on_save = {
+		timeout_ms = 500, -- Tiempo límite corto porque todas estas herramientas son instantáneas
+		lsp_format = "fallback", -- Si no hay binario, intenta usar el LSP activo
+	},
+})
+
+-- Crea el comando :Format que puedes escribir en la barra de comandos
+vim.api.nvim_create_user_command("Format", function()
+	require("conform").format({ bufnr = 0, lsp_fallback = true })
+end, {})
 
 --------------------------------------treesitter---------------------------------------
 require'nvim-treesitter'.setup {
@@ -414,6 +514,90 @@ end,
 })
 
 
+--------------------------onedark-----------------------------------
+require('onedark').setup {
+	style = 'warmer',
+  colors = {
+
+	bg0 = "#1c1c1c",
+	fg = "#FFFFFF",    -- define a new color
+	green = '#00cc44',            -- redefine an existing color
+	red = "#ff0016",
+	purple = "#d456d2",
+	blue = "#1481ff",
+	yellow = "#ffda30",
+	cyan = "#22e3ff",
+	orange = "#ff7000",
+	},
+
+	code_style = {
+			comments = 'italic',
+			keywords = 'italic',
+			functions = 'bold',
+			strings = 'italic',
+			variables = 'bold'
+	}
+}
+
+require('onedark').load()
+--https://github.com/navarasu/onedark.nvim/blob/master/lua/onedark/palette.lua
+
+
+--------------------------codeium-cmp-----------------------------------
+-- 1. Inicializar Windsurf / Codeium
+require("codeium").setup({
+	enable_ghost_text = true,
+})
+
+-- 2. Configurar LuaSnip
+local luasnip = require("luasnip")
+
+-- 3. Configurar nvim-cmp
+local cmp = require("cmp")
+
+cmp.setup({
+	snippet = {
+		expand = function(args)
+			luasnip.lsp_expand(args.body)
+		end,
+	},
+	mapping = cmp.mapping.preset.insert({
+		['<C-b>'] = cmp.mapping.scroll_docs(-4),
+		['<C-f>'] = cmp.mapping.scroll_docs(4),
+		['<C-Space>'] = cmp.mapping.complete(),
+		['<C-e>'] = cmp.mapping.abort(),
+		['<CR>'] = cmp.mapping.confirm({ select = true }), -- Confirmar selección
+		['<Tab>'] = cmp.mapping(function(fallback)
+			if cmp.visible() then
+				cmp.select_next_item()
+			elseif luasnip.expand_or_jumpable() then
+				luasnip.expand_or_jump()
+			else
+				fallback()
+			end
+		end, { 'i', 's' }),
+		['<S-Tab>'] = cmp.mapping(function(fallback)
+			if cmp.visible() then
+				cmp.select_prev_item()
+			elseif luasnip.jumpable(-1) then
+				luasnip.jump(-1)
+			else
+				fallback()
+			end
+		end, { 'i', 's' }),
+	}),
+	sources = cmp.config.sources({
+		{ name = "codeium" },  -- Fuente de Windsurf/Codeium (IA)
+		{ name = "nvim_lsp" },  -- Sugerencias del servidor LSP
+		{ name = "luasnip" },   -- Snippets
+	}, {
+		{ name = "buffer" },   -- Palabras del archivo actual
+		{ name = "path" },     -- Rutas de archivos
+	})
+})
+
+
+
 EOF
 "=============================CONFIG LUA==================================
 
@@ -427,9 +611,6 @@ nmap <C-b> :NvimTreeToggle<CR>
 " Habilitar colores de 24 bits (necesario para iconos)
 set termguicolors
 
-" --------------------------theme-----------------------------------
-set background=dark
-colorscheme lanox
 " --------------------------airline_theme-----------------------------------
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme='simple'

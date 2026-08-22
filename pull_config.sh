@@ -193,12 +193,27 @@ pullLazygit() {
     copy_file_with_validation "$ruta_lazygit/config.yml" "./config.yml" "config.yml"
 }
 
+pullTerminal() {
+    print_message $BLUE "Actualizando configuración de Windows Terminal..."
+
+    local username=$(get_windows_username)
+    local terminal_dir="/mnt/c/Users/$username/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState"
+    local source="$terminal_dir/settings.json"
+
+    if [ ! -d "$terminal_dir" ]; then
+        print_message $RED "Error: No se encontró el directorio de Windows Terminal en $terminal_dir"
+        return 1
+    fi
+
+    copy_file_with_validation "$source" "./terminal_settings.json" "terminal_settings.json"
+}
+
 pullAll() {
     print_message $BLUE "Actualizando todas las configuraciones..."
     local failed=0
     local failures=()
 
-    for func in pullVim pullNvimLinux pullNvimWindows pullTmux pullFish pullBash pullPowerShell pullIntelJ pullCursor pullYazi pullLazygit; do
+    for func in pullVim pullNvimLinux pullNvimWindows pullTmux pullFish pullBash pullPowerShell pullIntelJ pullCursor pullYazi pullLazygit pullTerminal; do
         if ! "$func"; then
             failures+=("$func")
             ((failed++))
@@ -228,6 +243,7 @@ show_menu() {
     echo -e "${YELLOW}i)${NC} Cursor (Windows)"
     echo -e "${YELLOW}j)${NC} Yazi"
     echo -e "${YELLOW}k)${NC} Lazygit"
+    echo -e "${YELLOW}m)${NC} Terminal Config (Windows Terminal)"
     echo -e "${YELLOW}l)${NC} Todos (Traer todo)"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
@@ -270,6 +286,9 @@ process_option() {
             ;;
         k|K)
             pullLazygit
+            ;;
+        m|M)
+            pullTerminal
             ;;
         l|L)
             pullAll

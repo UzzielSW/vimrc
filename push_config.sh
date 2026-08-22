@@ -314,7 +314,7 @@ confAll() {
     local failures=()
 
     # Mantener paridad con pull: solo los targets que pull soporta
-    for func in confVim confNvimLinux confNvimWindows confTmux confFish confBash confPowerShell confIntelJ confCursor confYazi confLazygit confInstallWin; do
+    for func in confVim confNvimLinux confNvimWindows confTmux confFish confBash confPowerShell confIntelJ confCursor confYazi confLazygit confInstallWin confTerminal; do
         if ! "$func"; then
             failures+=("$func")
             ((failed++))
@@ -447,6 +447,25 @@ confInstallWin() {
     fi
 }
 
+confTerminal() {
+    print_message $BLUE "Configurando Windows Terminal..."
+
+    local username=$(get_windows_username)
+    local terminal_dir="/mnt/c/Users/$username/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState"
+    local destino="$terminal_dir/settings.json"
+
+    if [ ! -d "$terminal_dir" ]; then
+        print_message $RED "Error: No se encontró el directorio de Windows Terminal en $terminal_dir"
+        return 1
+    fi
+
+    if copy_file_with_validation "terminal_settings.json" "$destino" "Configuración de Windows Terminal"; then
+        print_message $GREEN "Configuración de Windows Terminal aplicada exitosamente."
+    else
+        return 1
+    fi
+}
+
 resetConfigNvim() {
     print_message $YELLOW "Reseteando configuración de Neovim..."
 
@@ -483,6 +502,7 @@ show_menu() {
     echo -e "${YELLOW}l)${NC} Yazi"
     echo -e "${YELLOW}m)${NC} Lazygit"
     echo -e "${YELLOW}n)${NC} Install Win (Desktop)"
+    echo -e "${YELLOW}p)${NC} Terminal Config (Windows Terminal)"
     echo -e "${YELLOW}o)${NC} Todos (Configurar todo)"
     echo -e "${YELLOW}q)${NC} Salir"
     echo -e "${BLUE}===============================================${NC}"
@@ -546,6 +566,9 @@ main() {
                 ;;
             n|N)
                 confInstallWin
+                ;;
+            p|P)
+                confTerminal
                 ;;
             o|O)
                 confAll
