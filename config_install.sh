@@ -149,18 +149,65 @@ setup_git() {
 setup_fnm() {
     print_section "INSTALANDO FNM (Fast Node Manager)"
 
+    local fnm_ready=false
     if is_installed "FNM" "fnm"; then
-        return
-    fi
-
-    if confirm_install "FNM (Fast Node Manager)"; then
+        fnm_ready=true
+    elif confirm_install "FNM (Fast Node Manager)"; then
         print_message $BLUE "Instalando FNM..."
 
         curl -fsSL https://fnm.vercel.app/install | bash
 
         print_message $GREEN "✓ FNM instalado correctamente"
+        fnm_ready=true
     else
         print_message $YELLOW "Instalación de FNM omitida"
+    fi
+
+    if [ "$fnm_ready" = true ]; then
+        # Asegurar que fnm esté en el PATH de la sesión actual
+        if ! command_exists fnm; then
+            export PATH="$HOME/.local/share/fnm:$PATH"
+        fi
+
+        # Instalar Node.js versión 24
+        if fnm list 2>/dev/null | grep -q "v24"; then
+            print_message $GREEN "✓ Node.js 24 ya está instalado"
+        else
+            print_message $BLUE "Instalando Node.js 24..."
+            fnm i 24
+            print_message $GREEN "✓ Node.js 24 instalado correctamente"
+        fi
+
+        print_message $BLUE "Estableciendo Node.js 24 como predeterminado..."
+        fnm default 24
+        print_message $GREEN "✓ Node.js 24 establecido como predeterminado"
+
+        # Instalar paquetes globales de npm
+        if command_exists npm; then
+            local npm_packages=(
+                "neovim"
+                "tree-sitter-cli"
+            )
+
+            local npm_to_install=()
+            for pkg in "${npm_packages[@]}"; do
+                if npm list -g "$pkg" &>/dev/null; then
+                    print_message $GREEN "✓ $pkg ya está instalado globalmente"
+                else
+                    npm_to_install+=("$pkg")
+                fi
+            done
+
+            if [ ${#npm_to_install[@]} -gt 0 ]; then
+                print_message $BLUE "Instalando paquetes globales de npm..."
+                npm install -g "${npm_to_install[@]}"
+                print_message $GREEN "✓ Paquetes globales de npm instalados correctamente"
+            else
+                print_message $GREEN "✓ Todos los paquetes npm ya estaban instalados"
+            fi
+        else
+            print_message $YELLOW "npm no está disponible en el PATH actual. Reinicia la terminal o ejecuta: source ~/.bashrc"
+        fi
     fi
 }
 
@@ -299,6 +346,26 @@ setup_homebrew() {
             print_message $GREEN "✓ pnpm instalado correctamente"
         fi
 
+        if is_installed "uv" "uv"; then
+            :
+        elif confirm_install "uv desde Homebrew"; then
+            print_message $BLUE "Instalando uv..."
+            brew install uv
+            print_message $GREEN "✓ uv instalado correctamente"
+        fi
+
+        # Instalar djhtml con uv (solo si uv está disponible)
+        if command_exists uv; then
+            if command_exists djhtml; then
+                print_message $GREEN "✓ djhtml ya está instalado."
+            else
+                print_message $BLUE "Instalando djhtml con uv tool..."
+                uv tool install djhtml
+								uv tool update-shell
+                print_message $GREEN "✓ djhtml instalado correctamente"
+            fi
+        fi
+
     else
         print_message $YELLOW "Instalación de Homebrew omitida"
     fi
@@ -429,6 +496,8 @@ show_summary() {
         "brew"
         "nvim"
         "pnpm"
+        "uv"
+        "djhtml"
         "docker"
     )
 

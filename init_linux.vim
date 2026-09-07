@@ -71,25 +71,25 @@ function! CleanAccentsAndSymbols()
 	" 	return
 	endif
 
-  let replacements = {
-        \ 'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
-        \ 'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
-        \ 'ü': 'u', 'Ü': 'U',
-        \ '“': '"', '”': '"',
-        \ '‘': "'", '’': "'",
-        \ '—': '-', '–': '-',
-        \ '…': '...',
-        \ ' ': ' ',
-        \ "\u200b": '',
-        \ }
+	let replacements = {
+				\ 'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
+				\ 'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
+				\ 'ü': 'u', 'Ü': 'U',
+				\ '“': '"', '”': '"',
+				\ '‘': "'", '’': "'",
+				\ '—': '-', '–': '-',
+				\ '…': '...',
+				\ ' ': ' ',
+				\ "\u200b": '',
+				\ }
 
-  for [search, replace] in items(replacements)
-    " Usamos 'e' al final del comando :s para no dar error si no se encuentra el patrón
-    let cmd = 'silent! %s/' . escape(search, '/\') . '/' . escape(replace, '/\') . '/ge'
-    execute cmd
-  endfor
+	for [search, replace] in items(replacements)
+		" Usamos 'e' al final del comando :s para no dar error si no se encuentra el patrón
+		let cmd = 'silent! %s/' . escape(search, '/\') . '/' . escape(replace, '/\') . '/ge'
+		execute cmd
+	endfor
 
-  echo "Caracteres problematicos limpiados."
+	echo "Caracteres problematicos limpiados."
 endfunction
 
 nnoremap <silent> t :call CleanAccentsAndSymbols()<CR>
@@ -112,21 +112,21 @@ function! DeepCleanGarbage()
 	" 	return
 	endif
 
-  let replacements = {
-        \ '\r': '',
-        \ '\x00': '',
-        \ '[\x01-\x1F\x7F]': '',
-        \ ' ': ' ',
-        \ '\u00AD': '',
-        \ '\u200B': '',
-        \ '': '',
-        \ '': ''
-        \ }
+	let replacements = {
+				\ '\r': '',
+				\ '\x00': '',
+				\ '[\x01-\x1F\x7F]': '',
+				\ ' ': ' ',
+				\ '\u00AD': '',
+				\ '\u200B': '',
+				\ '': '',
+				\ '': ''
+				\ }
 
-  for [pattern, replace] in items(replacements)
-    let cmd = 'silent! %s/' . pattern . '/' . replace . '/g'
-    silent execute cmd
-  endfor
+	for [pattern, replace] in items(replacements)
+		let cmd = 'silent! %s/' . pattern . '/' . replace . '/g'
+		silent execute cmd
+	endfor
 
 	echo "Caracteres raros limpiados."
 endfunction
@@ -134,15 +134,15 @@ endfunction
 nnoremap <silent> M :call DeepCleanGarbage()<CR>
 
 " ---------------------------------surround---------------------------------------
-    " Old text                    Command         New text
+		" Old text                    Command         New text
 " --------------------------------------------------------------------------------
-    " surr*ound_words             ysiw)           (surround_words)
-    " *make strings               ys$"            "make strings"
-    " [delete ar*ound me!]        ds]             delete around me!
-    " remove <b>HTML t*ags</b>    dst             remove HTML tags
-    " 'change quot*es'            cs'"            "change quotes"
-    " <b>or tag* types</b>        csth1<CR>       <h1>or tag types</h1>
-    " delete(functi*on calls)     dsf             function calls
+		" surr*ound_words             ysiw)           (surround_words)
+		" *make strings               ys$"            "make strings"
+		" [delete ar*ound me!]        ds]             delete around me!
+		" remove <b>HTML t*ags</b>    dst             remove HTML tags
+		" 'change quot*es'            cs'"            "change quotes"
+		" <b>or tag* types</b>        csth1<CR>       <h1>or tag types</h1>
+		" delete(functi*on calls)     dsf             function calls
 
 call plug#begin('~/.vim/plugged')
 
@@ -167,23 +167,24 @@ if !exists('g:vscode')
 	Plug 'mg979/vim-visual-multi'
 	Plug 'nvim-tree/nvim-web-devicons'
 	Plug 'nvim-tree/nvim-tree.lua'
-  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'lanox/lanox-vim-theme'
-  Plug 'navarasu/onedark.nvim'
-  Plug 'zootedb0t/citruszest.nvim'
-  Plug 'ryanoasis/vim-devicons'
-  Plug 'lukas-reineke/indent-blankline.nvim'
-  Plug 'vim-airline/vim-airline'
-  Plug 'vim-airline/vim-airline-themes'
+	Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+	Plug 'lanox/lanox-vim-theme'
+	Plug 'navarasu/onedark.nvim'
+	Plug 'zootedb0t/citruszest.nvim'
+	Plug 'ryanoasis/vim-devicons'
+	Plug 'echasnovski/mini.icons'
+	Plug 'lukas-reineke/indent-blankline.nvim'
+	Plug 'vim-airline/vim-airline'
+	Plug 'vim-airline/vim-airline-themes'
 	Plug 'lewis6991/gitsigns.nvim'
 
 	Plug 'stevearc/conform.nvim'
-  Plug 'williamboman/mason.nvim'
+	Plug 'williamboman/mason.nvim'
 	Plug 'WhoIsSethDaniel/mason-tool-installer.nvim'
 
 	" Motor principal de autocompletado y snippets
 	Plug 'hrsh7th/nvim-cmp'
-	Plug 'L3MON4D3/LuaSnip'
+Plug 'L3MON4D3/LuaSnip', {'tag': 'v2.*', 'do': 'make install_jsregexp'}
 	Plug 'saadparwaiz1/cmp_luasnip'
 
 	" Fuentes recomendadas de nvim-cmp
@@ -222,8 +223,8 @@ let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
 
 "-------------------------------------------------------------------------NO VSCODE CONFIG--------------------------------------------------------------------------
 if exists('g:vscode')
-  " ¡Detiene la ejecucion! No carga el resto del archivo
-  finish
+	" ¡Detiene la ejecucion! No carga el resto del archivo
+	finish
 endif
 
 " --------------------------SETTINGS BASIC-----------------------------------
@@ -303,6 +304,10 @@ require("mason-tool-installer").setup({
 		"taplo",
 		"shfmt",
 		"sql-formatter",
+		"ruff",
+		"prettier",
+		"prettierd",
+		"yamlfmt",
 	},
 	auto_update = true,
 	run_on_start = true,
@@ -336,7 +341,7 @@ require("conform").setup({
 
 	-- Configuración de los formateadores para especificar dialectos de SQL
 	formatters = {
-    djhtml = {
+		djhtml = {
 			command = "djhtml", 
 			args = { "$FILENAME", "--tabwidth", "2" },
 			-- Indica que djhtml lee y modifica archivos directamente, no por entrada estándar (stdin)
@@ -373,61 +378,61 @@ end, {})
 
 --------------------------------------treesitter---------------------------------------
 require'nvim-treesitter'.setup {
-  -- A list of parser names, or "all" (the listed parsers MUST always be installed)
-  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "sql", "python", "bash", "json", "javascript", "html", "latex", "typst", "yaml"},
-  sync_install = false,
-  auto_install = true,
+	-- A list of parser names, or "all" (the listed parsers MUST always be installed)
+	ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "sql", "python", "bash", "json", "javascript", "html", "latex", "typst", "yaml"},
+	sync_install = false,
+	auto_install = true,
 
-  -- List of parsers to ignore installing (or "all")
-  -- ignore_install = { "javascript" },
+	-- List of parsers to ignore installing (or "all")
+	-- ignore_install = { "javascript" },
 
-  highlight = {
-    enable = true,
+	highlight = {
+		enable = true,
 
-    -- list of language that will be disabled
-    -- disable = { "c", "rust" },
-    -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
-    disable = function(lang, buf)
-        local max_filesize = 100 * 1024 -- 100 KB
-        local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-        if ok and stats and stats.size > max_filesize then
-            return true
-        end
-    end,
+		-- list of language that will be disabled
+		-- disable = { "c", "rust" },
+		-- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
+		disable = function(lang, buf)
+				local max_filesize = 100 * 1024 -- 100 KB
+				local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+				if ok and stats and stats.size > max_filesize then
+						return true
+				end
+		end,
 
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-    -- Instead of true it can also be a list of languages
-    additional_vim_regex_highlighting = false,
-  },
+		-- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+		-- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+		-- Using this option may slow down your editor, and you may see some duplicate highlights.
+		-- Instead of true it can also be a list of languages
+		additional_vim_regex_highlighting = false,
+	},
 }
 
 --------------------------------------indent-blankline---------------------------------------
-  local highlight = {
-      "RainbowRed",
-      "RainbowYellow",
-      "RainbowBlue",
-      "RainbowOrange",
-      "RainbowGreen",
-      "RainbowViolet",
-      "RainbowCyan",
-  }
+	local highlight = {
+			"RainbowRed",
+			"RainbowYellow",
+			"RainbowBlue",
+			"RainbowOrange",
+			"RainbowGreen",
+			"RainbowViolet",
+			"RainbowCyan",
+	}
 
-  local hooks = require "ibl.hooks"
-  -- create the highlight groups in the highlight setup hook, so they are reset
-  -- every time the colorscheme changes
-  hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-      vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
-      vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
-      vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
-      vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
-      vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
-      vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
-      vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
-  end)
+	local hooks = require "ibl.hooks"
+	-- create the highlight groups in the highlight setup hook, so they are reset
+	-- every time the colorscheme changes
+	hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+			vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
+			vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
+			vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
+			vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
+			vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
+			vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
+			vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
+	end)
 
-  require("ibl").setup { indent = { highlight = highlight } }
+	require("ibl").setup { indent = { highlight = highlight } }
 
 local wk = require("which-key")
 wk.add({
@@ -469,6 +474,10 @@ require("nvim-tree").setup({
 		side = "right",
 	},
 })
+
+
+--------------------------nvim-tree-----------------------------------
+require("mini.icons").setup()
 
 --------------------------toggleterm-----------------------------------
 require("toggleterm").setup({
@@ -516,7 +525,7 @@ end,
 --------------------------------------onedark-----------------------------------
 require('onedark').setup {
 	style = 'warmer',
-  colors = {
+	colors = {
 
 	bg0 = "#1c1c1c",
 	fg = "#FFFFFF",    -- define a new color
@@ -561,7 +570,6 @@ cmp.setup({
 		end,
 	},
 	mapping = cmp.mapping.preset.insert({
-		['<C-b>'] = cmp.mapping.scroll_docs(-4),
 		['<C-f>'] = cmp.mapping.scroll_docs(4),
 		['<C-Space>'] = cmp.mapping.complete(),
 		['<C-e>'] = cmp.mapping.abort(),
@@ -595,8 +603,6 @@ cmp.setup({
 	})
 })
 
-
-
 EOF
 "=============================CONFIG LUA==================================
 
@@ -611,8 +617,8 @@ nmap <C-b> :NvimTreeToggle<CR>
 set termguicolors
 
 " --------------------------theme-----------------------------------
-set background=dark
-colorscheme lanox
+colorscheme onedark
+
 " --------------------------airline_theme-----------------------------------
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme='simple'
@@ -623,4 +629,3 @@ let g:airline_right_sep = "\uE0b2"
 
 " set the CN (column number) symbol:
 let g:airline_section_z = airline#section#create([""])
-

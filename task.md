@@ -6,3 +6,8 @@ analiza el archivo: init.vim basado en el archivo init.vim, agrega las las confi
 
 - [ ] Task 2:
 
+Archivo a modificar: config_install.sh
+
+
+
+Nota: recuerda validar la instalaciones y evitar intalaciones si ya se encuentra instalado.

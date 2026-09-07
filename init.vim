@@ -1,4 +1,15 @@
-"-----------------------------------------
+" Regex
+" :%s/([^)]*)//g  elimina todo en parentesis de referencias
+" %s/\[\d\+\%(,\s*\d\+\)*\]//g  eliminar listas de referencias google
+
+" Ejecutar para corregir error de compilacion de: luasnip
+" cd C:\Users\braya\.vim\plugged\LuaSnip
+" make install_jsregexp LUA_LDLIBS="-L'C:/Program Files/Neovim/bin' -llua51"
+
+" verificar que funciona bien:
+" :lua print(pcall(require, "luasnip-jsregexp"))
+
+
 " 1. GENERIC SETTINGS y FILE SETTINGS
 "-----------------------------------------
 set clipboard=unnamed " use el portapapeles del sistema para copiar y pegar texto.
@@ -15,7 +26,7 @@ autocmd FileType * setlocal formatoptions-=r formatoptions-=o " evitar crear lin
 set hlsearch
 set incsearch
 set backspace=indent,eol,start
-set showbreak=↪\
+" set showbreak=↪\
 set wrap
 set linebreak
 "-----------------------------------------
@@ -35,6 +46,8 @@ nnoremap <C-f> /!  <CR>
 nnoremap X :%s/.*\n//g<CR>:nohlsearch<CR>
 nnoremap F :%s/\n/ /g <CR>:nohlsearch<CR>
 nmap E o<ESC>
+
+
 nmap S :%s/ /g
 map p ]p
 nnoremap w W
@@ -50,8 +63,8 @@ inoremap <C-b> <C-o>B
 inoremap <C-w> <C-o>W
 inoremap <C-a> <C-o>A
 inoremap <C-v> <C-o>p
-inoremap <C-H> <C-w> " Borrar palabra anterior con Ctrl + Retroceso en modo insertar
-
+" Borrar palabra anterior con Ctrl + Retroceso en modo insertar
+inoremap <C-H> <C-w>
 "--------------
 "---------------
 " NORMALIZAR ACENTOS, SIMBOLOS TIPOGRAFICOS, GUIONES, ESPACIOS RAROS, ETC.
@@ -137,13 +150,15 @@ nnoremap <silent> M :call DeepCleanGarbage()<CR>
 " ---------------------------------surround---------------------------------------
     " Old text                    Command         New text
 " --------------------------------------------------------------------------------
-    " surr*ound_words             ysiw)           (surround_words)
-    " *make strings               ys$"            "make strings"
-    " [delete ar*ound me!]        ds]             delete around me!
-    " remove <b>HTML t*ags</b>    dst             remove HTML tags
-    " 'change quot*es'            cs'"            "change quotes"
-    " <b>or tag* types</b>        csth1<CR>       <h1>or tag types</h1>
-    " delete(functi*on calls)     dsf             function calls
+	" surr*ound_words             ysiw)           (surround_words)
+	" *make strings               ys$"            "make strings"
+	" [delete ar*ound me!]        ds]             delete around me!
+	" remove <b>HTML t*ags</b>    dst             remove HTML tags
+	" 'change quot*es'            cs'"            "change quotes"
+	" <b>or tag* types</b>        csth1<CR>       <h1>or tag types</h1>
+	" delete(functi*on calls)     dsf             function calls
+	"                             :Modo visual:
+	" S + caracter
 
 call plug#begin('~/.vim/plugged')
 
@@ -167,12 +182,14 @@ if !exists('g:vscode')
 	Plug 'folke/which-key.nvim'
 	Plug 'mg979/vim-visual-multi'
 	Plug 'nvim-tree/nvim-web-devicons'
+	Plug 'echasnovski/mini.icons'
 	Plug 'nvim-tree/nvim-tree.lua'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'lanox/lanox-vim-theme'
 	Plug 'navarasu/onedark.nvim'
 	Plug 'zootedb0t/citruszest.nvim'
   Plug 'ryanoasis/vim-devicons'
+	Plug 'echasnovski/mini.icons'
   Plug 'lukas-reineke/indent-blankline.nvim'
   Plug 'vim-airline/vim-airline'
   Plug 'vim-airline/vim-airline-themes'
@@ -184,7 +201,7 @@ if !exists('g:vscode')
 
 	" Motor principal de autocompletado y snippets
 	Plug 'hrsh7th/nvim-cmp'
-	Plug 'L3MON4D3/LuaSnip'
+Plug 'L3MON4D3/LuaSnip', {'tag': 'v2.*', 'do': 'make install_jsregexp'}
 	Plug 'saadparwaiz1/cmp_luasnip'
 
 	" Fuentes recomendadas de nvim-cmp
@@ -288,6 +305,7 @@ nnoremap <leader>qq :q! <CR>
 nnoremap <silent> <leader>gg :LazyGit<CR>
 nnoremap <silent> <leader>pv :Markview toggle<CR>
 nnoremap <leader>y :Yazi<CR>
+nnoremap <leader>F :Format<CR>
 
 " --------------------------auto_save-----------------------------------
 let g:auto_save = 1
@@ -304,6 +322,10 @@ require("mason-tool-installer").setup({
 		"taplo",
 		"shfmt",
 		"sql-formatter",
+		"ruff",
+		"prettier",
+		"prettierd",
+		"yamlfmt",
 	},
 	auto_update = true,
 	run_on_start = true,
@@ -318,7 +340,8 @@ require("conform").setup({
 		javascriptreact = { "biome", "prettierd", "prettier", stop_after_first = true },
 		typescriptreact = { "biome", "prettierd", "prettier", stop_after_first = true },
 		css = { "biome", "prettierd", "prettier", stop_after_first = true },
-		html = { "biome", "prettierd", "prettier", stop_after_first = true },
+		--html = { "biome", "prettierd", "prettier", stop_after_first = true },
+		html = { "prettierd", "prettier", stop_after_first = true },
 
 		-- Entorno Python (Backend y Frontend)
 		python = { "ruff"}, -- Reemplaza por completo a black e isort de forma instantánea
@@ -361,10 +384,10 @@ args = { "format", "--stdin-file-path", "$FILENAME" },
 	},
 
 	-- Ejecutar el formateo automáticamente al guardar el archivo
-	format_on_save = {
-		timeout_ms = 500, -- Tiempo límite corto porque todas estas herramientas son instantáneas
-		lsp_format = "fallback", -- Si no hay binario, intenta usar el LSP activo
-	},
+--	format_on_save = {
+--		timeout_ms = 500, -- Tiempo límite corto porque todas estas herramientas son instantáneas
+--		lsp_format = "fallback", -- Si no hay binario, intenta usar el LSP activo
+--	},
 })
 
 -- Crea el comando :Format que puedes escribir en la barra de comandos
@@ -375,7 +398,7 @@ end, {})
 --------------------------------------treesitter---------------------------------------
 require'nvim-treesitter'.setup {
   -- A list of parser names, or "all" (the listed parsers MUST always be installed)
-  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "sql", "python", "bash", "json", "javascript", "html", "latex", "typst", "yaml"},
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "sql", "python", "bash", "json", "javascript", "html", "latex", "typst", "yaml", "php"},
   sync_install = false,
   auto_install = true,
 
@@ -436,7 +459,6 @@ wk.add({
 	{ "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find File", mode = "n" },
 	{ "<leader>fb", function() print("hello he who remains :) love u") end, desc = "Foobar", hidden = true },
 	{ "<leader>f1", hidden = true }, -- hide this keymap
-	{ "<leader>w", proxy = "<c-w>", group = "windows" }, -- proxy to window mappings
 	{ "<leader>b", group = "buffers", expand = function()
 			return require("which-key.extras").expand.buf()
 		end
@@ -470,6 +492,9 @@ require("nvim-tree").setup({
 		side = "right",
 	},
 })
+
+--------------------------nvim-tree-----------------------------------
+require("mini.icons").setup()
 
 --------------------------toggleterm-----------------------------------
 require("toggleterm").setup({
@@ -513,7 +538,6 @@ callback = function()
 end,
 })
 
-
 --------------------------onedark-----------------------------------
 require('onedark').setup {
 	style = 'warmer',
@@ -542,6 +566,8 @@ require('onedark').setup {
 require('onedark').load()
 --https://github.com/navarasu/onedark.nvim/blob/master/lua/onedark/palette.lua
 
+--------------------------mini.icon-----------------------------------
+require('mini.icons').setup()
 
 --------------------------codeium-cmp-----------------------------------
 -- 1. Inicializar Windsurf / Codeium
@@ -597,9 +623,64 @@ cmp.setup({
 })
 
 
+--------------------------markview-----------------------------------
+local presets = require("markview.presets").headings;
+
+require("markview").setup({
+		markdown = {
+				headings = presets.marker
+		},
+code_blocks = {
+enable = true,
+
+border_hl = "MarkviewCode",
+info_hl = "MarkviewCodeInfo",
+
+label_direction = "right",
+label_hl = nil,
+
+min_width = 60,
+pad_amount = 2,
+pad_char = " ",
+
+default = {
+		block_hl = "MarkviewCode",
+		pad_hl = "MarkviewCode"
+},
+
+["diff"] = {
+		block_hl = function (_, line)
+				if line:match("^%+") then
+						return "MarkviewPalette4";
+				elseif line:match("^%-") then
+						return "MarkviewPalette1";
+				else
+						return "MarkviewCode";
+				end
+		end,
+		pad_hl = "MarkviewCode"
+},
+
+style = function (buf)
+		if vim.o.wrap then
+				return "simple";
+		end
+
+		local win = require("markview.utils").buf_getwin(buf);
+		return vim.wo[win].wrap == true and "simple" or "block";
+end,
+sign = true,
+},
+		
+});
+
 
 EOF
 "=============================CONFIG LUA==================================
+
+set foldmethod=indent
+" set foldexpr=v:lua.vim.treesitter.foldexpr()
+set foldlevel=99
 
 " --------------------------nvim-tree-----------------------------------
 " Desactivar netrw (requerido por nvim-tree)

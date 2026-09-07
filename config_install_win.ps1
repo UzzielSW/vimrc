@@ -20,12 +20,6 @@ $paquetes = @(
         envPath     = "$env:LocalAppData\Pandoc"
     },
     @{
-        nombre      = "MinGW / w64devkit"
-        id          = "skeeto.w64devkit"
-        descripcion = "Compilador GCC para Windows"
-        envPath     = "C:\w64devkit\bin"
-    },
-    @{
         nombre      = "CMake"
         id          = "Kitware.CMake"
         descripcion = "Sistema de construcción multiplataforma"
@@ -245,12 +239,31 @@ function Install-ScoopPackages {
         return
     }
 
+    # Añadir bucket "versions" si no existe (necesario para Python 3.12)
+    $buckets = scoop bucket list 2>$null
+    if ($buckets -notmatch "versions") {
+        Write-Host " [➜] Añadiendo bucket 'versions'..." -ForegroundColor DarkCyan
+        scoop bucket add versions
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host " [✔] Bucket 'versions' añadido correctamente." -ForegroundColor Green
+        } else {
+            Write-Host " [✖] Error añadiendo bucket 'versions'. Código: $LASTEXITCODE" -ForegroundColor Red
+        }
+    } else {
+        Write-Host " [✔] Bucket 'versions' ya existe." -ForegroundColor Green
+    }
+
     $scoopPackages = @(
         @{nombre="sd";          id="main/sd";          descripcion="Intercambio de búsqueda y reemplazo"},
         @{nombre="fd";          id="main/fd";          descripcion="Alternativa rápida a find"},
         @{nombre="ripgrep";     id="main/ripgrep";     descripcion="Búsqueda rápida en archivos"},
         @{nombre="unzip";       id="main/unzip";       descripcion="Descompresión de archivos"},
-        @{nombre="tree-sitter"; id="main/tree-sitter"; descripcion="Parser incremental para grammáticas"}
+        @{nombre="tree-sitter"; id="main/tree-sitter"; descripcion="Parser incremental para grammáticas"},
+        @{nombre="make";        id="main/make";        descripcion="Herramienta de construcción"},
+        @{nombre="mingw";       id="main/mingw";       descripcion="Compilador GCC para Windows"},
+        @{nombre="wget";        id="main/wget";        descripcion="Descarga de archivos desde la terminal"},
+        @{nombre="gzip";        id="main/gzip";        descripcion="Compresión de archivos"},
+        @{nombre="python312";   id="versions/python312"; descripcion="Python 3.12"}
     )
 
     foreach ($pkg in $scoopPackages) {
@@ -306,6 +319,44 @@ function Install-NpmGlobalPackages {
     }
 }
 
+function Install-Uv {
+    Write-Host "`n==================================================" -ForegroundColor Cyan
+    Write-Host "Instalando uv (gestor de herramientas Python)" -ForegroundColor Yellow
+    Write-Host "=================================================="
+
+    if (Get-Command uv -ErrorAction SilentlyContinue) {
+        Write-Host " [✔] uv ya está instalado." -ForegroundColor Green
+    } else {
+        Write-Host " [➜] Instalando uv..." -ForegroundColor DarkCyan
+        powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+        if (Get-Command uv -ErrorAction SilentlyContinue) {
+            Write-Host " [✔] uv instalado correctamente." -ForegroundColor Green
+        } else {
+            Write-Host " [✖] Error instalando uv. Revisa manualmente o reinicia la terminal." -ForegroundColor Red
+        }
+    }
+
+    if (Get-Command uv -ErrorAction SilentlyContinue) {
+        Write-Host "`n--- djhtml ---" -ForegroundColor Yellow
+        Write-Host "Formateador de templates Django/HTML" -ForegroundColor DarkGray
+
+        $checkInstalled = uv tool list 2>$null
+        if ($checkInstalled -match "djhtml") {
+            Write-Host " [✔] 'djhtml' ya está instalado. Omitiendo..." -ForegroundColor Green
+        } else {
+            Write-Host " [➜] Instalando 'djhtml' con uv..." -ForegroundColor DarkCyan
+            uv tool install djhtml
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host " [✔] 'djhtml' se instaló correctamente." -ForegroundColor Green
+            } else {
+                Write-Host " [✖] Error instalando 'djhtml'. Código: $LASTEXITCODE" -ForegroundColor Red
+            }
+        }
+    } else {
+        Write-Host " [✖] uv no está disponible. Omitiendo instalación de djhtml." -ForegroundColor Red
+    }
+}
+
 function Show-Summary {
     Write-Host "`n==================================================" -ForegroundColor Magenta
     Write-Host "         VERIFICACIÓN DE INSTALACIONES" -ForegroundColor Magenta
@@ -329,7 +380,14 @@ function Show-Summary {
         @{comando="unzip"; nombre="unzip"},
         @{comando="tree-sitter"; nombre="tree-sitter"},
         @{comando="nvim"; nombre="Neovim"},
-        @{comando="trash"; nombre="trash-cli"}
+        @{comando="trash"; nombre="trash-cli"},
+        @{comando="make"; nombre="make"},
+        @{comando="gcc"; nombre="mingw (gcc)"},
+        @{comando="wget"; nombre="wget"},
+        @{comando="gzip"; nombre="gzip"},
+        @{comando="python"; nombre="python312"},
+        @{comando="uv"; nombre="uv"},
+        @{comando="djhtml"; nombre="djhtml"}
     )
 
     $allOk = $true
@@ -385,5 +443,6 @@ Configure-GitDelta
 Install-Scoop
 Install-ScoopPackages
 Install-NpmGlobalPackages
+Install-Uv
 
 Show-Summary
