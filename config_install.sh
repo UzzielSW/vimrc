@@ -48,6 +48,18 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Función para validar si una herramienta está instalada (verde si está, omite instalación)
+is_installed() {
+    local name=$1
+    local cmd=$2
+
+    if command_exists "$cmd"; then
+        print_message $GREEN "✓ $name ya está instalado."
+        return 0
+    fi
+    return 1
+}
+
 # Función para actualizar el sistema
 update_system() {
     print_section "ACTUALIZANDO SISTEMA"
@@ -82,18 +94,33 @@ install_basic_packages() {
 				"jq" # JSON processor. Permite filtrar, transformar y manipular JSON.
 				"yq" # YAML processor. Permite filtrar, transformar y manipular YAML.
 				"bat" # Cat clone. Permite ver archivos de forma mas legible.
-				"tldr" # Manual de comandos. Permite ver la documentación de los comandos de forma mas legible.
     )
 
-    print_message $BLUE "Instalando paquetes básicos..."
-    sudo apt install -y "${packages[@]}"
+    local to_install=()
+    for pkg in "${packages[@]}"; do
+        if dpkg -s "$pkg" &>/dev/null; then
+            print_message $GREEN "✓ $pkg ya está instalado"
+        else
+            to_install+=("$pkg")
+        fi
+    done
 
-    print_message $GREEN "✓ Paquetes básicos instalados correctamente"
+    if [ ${#to_install[@]} -gt 0 ]; then
+        print_message $BLUE "Instalando paquetes básicos pendientes..."
+        sudo apt install -y "${to_install[@]}"
+        print_message $GREEN "✓ Paquetes básicos instalados correctamente"
+    else
+        print_message $GREEN "✓ Todos los paquetes básicos ya estaban instalados"
+    fi
 }
 
 # Función para configurar Git
 setup_git() {
     print_section "CONFIGURANDO GIT"
+
+    if is_installed "Git" "git"; then
+        return
+    fi
 
     if confirm_install "configuración de Git"; then
         print_message $BLUE "Configurando Git..."
@@ -122,6 +149,10 @@ setup_git() {
 setup_fnm() {
     print_section "INSTALANDO FNM (Fast Node Manager)"
 
+    if is_installed "FNM" "fnm"; then
+        return
+    fi
+
     if confirm_install "FNM (Fast Node Manager)"; then
         print_message $BLUE "Instalando FNM..."
 
@@ -133,34 +164,13 @@ setup_fnm() {
     fi
 }
 
-# Función para instalar Java
-setup_java() {
-    print_section "INSTALANDO JAVA"
-
-    if confirm_install "Java Development Kit"; then
-        print_message $BLUE "Instalando Java..."
-
-        sudo apt install -y default-jre openjdk-21-jdk
-
-        # Configurar JAVA_HOME
-        local java_home=$(readlink -f /usr/bin/java | sed 's:/bin/java::')
-        if ! grep -q "JAVA_HOME" "$HOME_DIR/.bashrc"; then
-            echo "" >> "$HOME_DIR/.bashrc"
-            echo "# Java Configuration" >> "$HOME_DIR/.bashrc"
-            echo "export JAVA_HOME=$java_home" >> "$HOME_DIR/.bashrc"
-            echo 'export PATH=$JAVA_HOME/bin:$PATH' >> "$HOME_DIR/.bashrc"
-        fi
-
-        print_message $GREEN "✓ Java instalado correctamente"
-        print_message $BLUE "JAVA_HOME configurado en $java_home"
-    else
-        print_message $YELLOW "Instalación de Java omitida"
-    fi
-}
-
 # Función para instalar Fish, Oh My Fish y plugin pj
 setup_fish() {
     print_section "INSTALANDO FISH SHELL Y OH MY FISH"
+
+    if is_installed "Fish" "fish"; then
+        return
+    fi
 
     if confirm_install "Fish shell con Oh My Fish y plugin pj"; then
         print_message $BLUE "Instalando Fish..."
@@ -185,6 +195,10 @@ setup_fish() {
 # Función para instalar Lazygit
 install_lazygit() {
     print_section "INSTALANDO LAZYGIT"
+
+    if is_installed "Lazygit" "lazygit"; then
+        return
+    fi
 
     if confirm_install "Lazygit (cliente TUI para Git)"; then
         print_message $BLUE "Descargando Lazygit..."
@@ -212,6 +226,10 @@ install_lazygit() {
 # Función para instalar Yazi
 install_yazi() {
     print_section "INSTALANDO YAZI"
+
+    if is_installed "Yazi" "yazi"; then
+        return
+    fi
 
     if confirm_install "Yazi (terminal file manager)"; then
         print_message $BLUE "Descargando Yazi..."
@@ -243,6 +261,10 @@ install_yazi() {
 setup_homebrew() {
     print_section "INSTALANDO HOMEBREW"
 
+    if is_installed "Homebrew" "brew"; then
+        return
+    fi
+
     if confirm_install "Homebrew (gestor de paquetes)"; then
         print_message $BLUE "Instalando Homebrew..."
 
@@ -261,50 +283,71 @@ setup_homebrew() {
         print_message $GREEN "✓ Homebrew instalado correctamente"
 
         # Instalar Neovim con Homebrew
-        if confirm_install "Neovim desde Homebrew"; then
+        if is_installed "Neovim" "nvim"; then
+            :
+        elif confirm_install "Neovim desde Homebrew"; then
             print_message $BLUE "Instalando Neovim..."
             brew install neovim
             print_message $GREEN "✓ Neovim instalado correctamente"
         fi
 
-				if confirm_install "pnpm desde Homebrew"; then
-						print_message $BLUE "Instalando pnpm..."
-						brew install pnpm
-						print_message $GREEN "✓ pnpm instalado correctamente"
-				fi
+        if is_installed "pnpm" "pnpm"; then
+            :
+        elif confirm_install "pnpm desde Homebrew"; then
+            print_message $BLUE "Instalando pnpm..."
+            brew install pnpm
+            print_message $GREEN "✓ pnpm instalado correctamente"
+        fi
 
     else
         print_message $YELLOW "Instalación de Homebrew omitida"
     fi
 }
 
-# Función para instalar herramientas adicionales
-install_additional_tools() {
-    print_section "INSTALANDO HERRAMIENTAS ADICIONALES"
+# Función para configuración Full Linux (solo aplicable en SO Linux nativo, no WSL)
+setup_full_linux() {
+    print_section "CONFIGURACIÓN FULL LINUX"
 
-    if confirm_install "herramientas adicionales de desarrollo"; then
+    if is_installed "Docker" "docker"; then
+        return
+    fi
 
+    if confirm_install "configuración Full Linux (instalación de Docker)"; then
+        print_message $BLUE "Set up Docker's apt repository..."
 
-        local additional_packages=(
-            "docker.io" # Docker es un contenedor de software que permite a los desarrolladores crear, distribuir y ejecutar aplicaciones en contenedores.
-            "docker-compose" # Docker Compose es una herramienta para definir y ejecutar aplicaciones Docker de múltiples contenedores.
-            "postgresql-client"
-            "redis-tools"
-        )
+        print_message $BLUE "Añadiendo la clave GPG oficial de Docker..."
+        sudo apt update
+        sudo apt install -y ca-certificates curl
+        sudo install -m 0755 -d /etc/apt/keyrings
+        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+        sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-        print_message $BLUE "Instalando herramientas adicionales..."
-        sudo apt install -y "${additional_packages[@]}"
+        print_message $BLUE "Añadiendo el repositorio a las fuentes de Apt..."
+        sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
 
-        # Añadir usuario al grupo docker (Ubuntu) para usar Docker sin sudo
-        if dpkg -l docker.io &>/dev/null; then
-            sudo usermod -aG docker "$USERNAME"
-            print_message $GREEN "✓ Usuario $USERNAME añadido al grupo docker"
-            print_message $YELLOW "Para aplicar cambios de Docker: newgrp docker (o cierra sesión y vuelve a entrar)"
-        fi
+        sudo apt update
 
-        print_message $GREEN "✓ Herramientas adicionales instaladas correctamente"
+        print_message $BLUE "Instalando los paquetes de Docker..."
+        sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+        print_message $GREEN "✓ Docker instalado correctamente"
+
+        print_message $BLUE "Verificando que Docker está en ejecución..."
+        sudo systemctl status docker
+
+        # Añadir usuario al grupo docker para usar Docker sin sudo
+        sudo usermod -aG docker "$USERNAME"
+        print_message $GREEN "✓ Usuario $USERNAME añadido al grupo docker"
+        print_message $YELLOW "Para aplicar cambios de Docker: newgrp docker (o cierra sesión y vuelve a entrar)"
     else
-        print_message $YELLOW "Instalación de herramientas adicionales omitida"
+        print_message $YELLOW "Configuración Full Linux omitida"
     fi
 }
 
@@ -313,7 +356,6 @@ setup_dev_directories() {
     print_section "CREANDO DIRECTORIOS DE DESARROLLO"
 
     local dev_dirs=(
-        "$HOME_DIR/Projects"
         "$HOME_DIR/Documents"
         "$HOME_DIR/.config"
     )
@@ -341,34 +383,70 @@ cleanup_system() {
     print_message $GREEN "✓ Limpieza completada"
 }
 
-# Función para mostrar resumen de la instalación
+# Función para mostrar resumen/validación de la instalación
 show_summary() {
-    print_section "RESUMEN DE LA INSTALACIÓN"
+    print_section "VALIDACIÓN DE INSTALACIONES"
 
     echo -e "${GREEN}===============================================================${NC}"
     echo -e "${GREEN}          CONFIGURACIÓN DE UBUNTU COMPLETADA                    ${NC}"
     echo -e "${GREEN}===============================================================${NC}"
     echo
-    echo -e "${CYAN}Herramientas configuradas / instaladas:${NC}"
-    echo "  - Sistema actualizado"
-    echo "  - Paquetes básicos (build-essential, curl, wget, git, vim, htop, tree, fzf, ripgrep, fd-find, zathura)"
-    echo "  - Git (si aceptaste)"
-    echo "  - FNM (si aceptaste)"
-    echo "  - Java JDK (si aceptaste)"
-    echo "  - Fish shell, Oh My Fish y plugin pj (si aceptaste)"
-    echo "  - Lazygit (si aceptaste)"
-    echo "  - Yazi (si aceptaste)"
-    echo "  - Homebrew y Neovim (si aceptaste)"
-    echo "  - Herramientas adicionales: Docker, postgresql-client, redis-tools (si aceptaste)"
-    echo "  - Directorios de desarrollo"
-    echo "  - Limpieza de caché y paquetes no utilizados"
-    echo
-    echo -e "${YELLOW}Próximos pasos recomendados:${NC}"
-    echo "1. Reinicia tu terminal o ejecuta: source ~/.bashrc"
-    echo "2. Si instalaste Docker: ejecuta \`newgrp docker\` para usar Docker sin sudo"
-    echo "3. Verifica instalaciones: fnm --version, java -version, brew --version, nvim --version, lazygit --version, yazi --version"
-    echo
-    echo -e "${BLUE}¡Tu entorno de desarrollo en Ubuntu está listo!${NC}"
+    echo -e "${CYAN}Estado de las herramientas:${NC}"
+
+    # Validar paquetes básicos
+    local basic_packages=(
+        "build-essential"
+        "unzip"
+        "sqlite3"
+        "curl"
+        "wget"
+        "git"
+        "htop"
+        "tree"
+        "fzf"
+        "ripgrep"
+        "fd-find"
+        "zathura"
+        "git-delta"
+        "jq"
+        "yq"
+        "bat"
+    )
+    for pkg in "${basic_packages[@]}"; do
+        if dpkg -s "$pkg" &>/dev/null; then
+            print_message $GREEN "  ✓ $pkg instalado"
+        else
+            print_message $RED "  ✗ $pkg NO instalado"
+        fi
+    done
+
+    # Validar herramientas instaladas por binario
+    local tools=(
+        "fnm"
+        "fish"
+        "lazygit"
+        "yazi"
+        "brew"
+        "nvim"
+        "pnpm"
+        "docker"
+    )
+
+    for tool in "${tools[@]}"; do
+        if command_exists "$tool"; then
+            print_message $GREEN "  ✓ $tool instalado"
+        else
+            print_message $RED "  ✗ $tool NO instalado"
+        fi
+    done
+
+    # docker compose se valida de forma especial (es subcomando de docker)
+    if docker compose version &>/dev/null; then
+        print_message $GREEN "  ✓ docker compose instalado"
+    else
+        print_message $RED "  ✗ docker compose NO instalado"
+    fi
+
     echo -e "${GREEN}===============================================================${NC}"
 }
 
@@ -394,12 +472,11 @@ main() {
     install_basic_packages
     setup_git
     setup_fnm
-    setup_java
     setup_fish
     install_lazygit
     install_yazi
     setup_homebrew
-    install_additional_tools
+    setup_full_linux
     setup_dev_directories
     cleanup_system
 

@@ -1,6 +1,8 @@
 Recordar: Realizar unicamente las tareas que no estes completadas y Marcar las tareas una vez completadas.
 
-- [ ] Task 1:
+- [X] Task 1:
 analiza el archivo: init.vim basado en el archivo init.vim, agrega las las configuraciones que hacen falta en el archivo init_linux.vim que deben ir las mismas solo que adaptadas para linux.  
 
+
+- [ ] Task 2:
 
